@@ -171,7 +171,6 @@ class UIObject: # No Inheritance necessary.
 		print(self.LocalVertices)
 		for vertex in self.LocalVertices:
 			mid = mid + vertex
-		print(mid)
 		mid = mid / len(self._Vertices)
 		return mid
 
