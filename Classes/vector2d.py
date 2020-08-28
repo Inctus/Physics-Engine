@@ -9,7 +9,7 @@ class Vec2d(object):
     __slots__ = ['x', 'y']
 
     def __init__(self, x_or_pair=None, y = None):
-        if not x_or_pair:
+        if x_or_pair == None:
             self.x = 0
             self.y = 0
         else:
