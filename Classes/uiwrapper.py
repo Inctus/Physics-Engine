@@ -12,6 +12,7 @@ from pygame import Color as Colour # UK > US
 from vector2d import Vec2d as Vector2 # 2D Vector Class from pygame
 #from udim2 import udim as UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
 from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
+from uuid import uuid1 as UUID # ID Generation
 
 # >> GLOBAL VARIABLES <<
 screenSize = Vector2() # A global variable which will be used to store the ScreenSize as a Vector
@@ -37,13 +38,17 @@ class UIObject: # No Inheritance necessary.
 			self.ClassName = className
 		else:
 			raise ValueError(f"Unknown className, {className}")
+		if parent:
+			self.Parent = parent
 		# >> Attributes
 		self.Name = ""
 		self.Visible = True
 		self.Colour = Colour(255,255,255)
 		self.Anchored = True
 		self.ZIndex = 0
+		self.ID = UUID()
 		# >> Private Attributes
+		self.__Parent = None
 		self.__Position = UDim2()
 		self.__Size = UDim2()
 		self.__Vertices = []
@@ -97,7 +102,13 @@ class UIObject: # No Inheritance necessary.
 			if child.ClassName == className:
 				return child
 		return False
-		
+
+	def FindFirstChildOfID(self, ID):
+		for child in self.__Children:
+			if child.ID == ID:
+				return child
+		return False
+
 	def AddVertex(self, newVertex): 
 		self.__Vertices.append(newVertex)
 
@@ -106,3 +117,17 @@ class UIObject: # No Inheritance necessary.
 
 	def ChangeVertex(self, index, newValue):
 		self.__Vertices[index] = newValue
+
+	@property
+	def Parent(self):
+		return self.__Parent
+
+	@Parent.setter
+	def Parent(self, newParent):
+		if self.__Parent:
+			self.__Parent.__RemoveChild(self)
+		self.__Parent = newParent
+		if newParent:
+			newParent.__AddChild(self)
+			while not newParent.FindFirstChildOfID(self.ID):
+				pass
