@@ -10,11 +10,15 @@ from vector2d import Vec2d as Vector2 # 2D Vector Class from pygame
 
 # >> CLASSES <<
 class UDim:
+	__slots__ = ["Scale", "OFfset"]
+	
 	def __init__(self, xs=0, x=0):
 		self.Scale = xs
 		self.Offset = x
 	
 class UDim2:
+	__slots__ = ["X", "Y"]
+
 	def __init__(self, xs=0, x=0, ys=0, y=0):
 		self.X = UDim(xs, x)
 		self.Y = UDim(ys, y)
