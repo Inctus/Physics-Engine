@@ -17,9 +17,9 @@ from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole clas
 screenSize = Vector2() # A global variable which will be used to store the ScreenSize as a Vector
 
 classNames = [
-"rectangle",
-"ellipse",
-"polygon",
+"rectangle", # Again, just for UI elements
+"ellipse", # This is just for UI elements
+"polygon", # for all shapes I'll use this
 "workspace" # workspace = physics parent
 ]
 
@@ -62,3 +62,47 @@ class UIObject: # No Inheritance necessary.
 	def __RemoveChild(self, oldChild):
 		if oldChild in self.__Children:
 			self.__Children.remove(oldChild)
+
+	def GetChildren(self):
+		orderedChildren = copy.deepcopy(self.__Children)
+		orderedChildren.sort(key=lambda n: n.ZIndex) # Order children by ZIndex for rendering.
+		return orderedChildren
+
+	def Clone(self):
+		# >> Attributes
+		clone = UIObject(self.ClassName)
+		clone.Name = self.Name
+		clone.Visible = True
+		clone.Colour = self.Colour
+		clone.Anchored = self.Anchored
+		clone.ZIndex = self.ZIndex
+		# >> Private Attributes
+		clone.__Position = self.Position
+		clone.__Size = self.__Size
+		clone.__Vertices = deepCopy(self.__Vertices)
+		clone.__Children = []
+		for child in self.Children:
+			subChild = child.Clone()
+			subChild.Parent = clone
+		return clone
+
+	def FindFirstChild(self, name):
+		for child in self.__Children:
+			if child.Name == name:
+				return child
+		return False
+
+	def FindFirstChildOfClass(self, className):
+		for child in self.__Children:
+			if child.ClassName == className:
+				return child
+		return False
+		
+	def AddVertex(self, newVertex): 
+		self.__Vertices.append(newVertex)
+
+	def RemoveVertex(self, oldVertex):
+		self.__Vertices.remove(oldVertex)
+
+	def ChangeVertex(self, index, newValue):
+		self.__Vertices[index] = newValue
