@@ -168,7 +168,6 @@ class UIObject: # No Inheritance necessary.
 	@property
 	def Center(self):
 		mid = Vector2()
-		print(self.LocalVertices)
 		for vertex in self.LocalVertices:
 			mid = mid + vertex
 		mid = mid / len(self._Vertices)
