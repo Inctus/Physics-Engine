@@ -8,13 +8,17 @@ class Vec2d(object):
        """
     __slots__ = ['x', 'y']
 
-    def __init__(self, x_or_pair, y = None):
-        if y == None:
-            self.x = x_or_pair[0]
-            self.y = x_or_pair[1]
+    def __init__(self, x_or_pair=None, y = None):
+        if not x_or_pair:
+            self.x = 0
+            self.y = 0
         else:
-            self.x = x_or_pair
-            self.y = y
+            if y == None:
+                self.x = x_or_pair[0]
+                self.y = x_or_pair[1]
+            else:
+                self.x = x_or_pair
+                self.y = y
 
     def __len__(self):
         return 2
