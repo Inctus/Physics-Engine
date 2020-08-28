@@ -47,6 +47,7 @@ class UIObject: # No Inheritance necessary.
 		self.Anchored = True
 		self.ZIndex = 0
 		self.ID = UUID()
+		self.Rotation = 0
 		# >> Private Attributes
 		self._Parent = None
 		self._Position = UDim2()
@@ -81,6 +82,7 @@ class UIObject: # No Inheritance necessary.
 		clone.Colour = self.Colour
 		clone.Anchored = self.Anchored
 		clone.ZIndex = self.ZIndex
+		clone.Rotation = self.Rotation
 		# >> Private Attributes
 		clone._Position = self.Position
 		clone._Size = self._Size
