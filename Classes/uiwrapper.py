@@ -131,3 +131,16 @@ class UIObject: # No Inheritance necessary.
 			newParent.__AddChild(self)
 			while not newParent.FindFirstChildOfID(self.ID):
 				pass
+	@property
+	def AbsoluteSize(self):
+		if self.Parent:
+			return UDim2.toVector2(self.Size, self.Parent.AbsoluteSize)
+		else:
+			return screenSize
+
+	@property
+	def AbsolutePosition(self):
+		if self.Parent:
+			return UDim2.toVector2(self.Position, self.Parent.AbsoluteSize) + self.Parent.AbsolutePos
+		else:
+			return Vector2()
