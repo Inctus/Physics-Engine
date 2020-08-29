@@ -7,9 +7,16 @@ This is my OCR A Level Cousework. It is a simple, lightweight 2D physics solver 
 - `Vector2`: [PyGame](https://www.pygame.org/wiki/about)'s 2D vector class that is used to position vertices and every element on the screen.
 -----
 - `UIBase`: A UI Wrapper that simplifies creation and management of UI. Has several internal SubClasses that affect rendering. 
-  i. `Workspace`⭢ The ancestor of all `RigidBodies`.
-  ii. `Rectangle`⭢ A basic rectangle.
+ ------- 
+ i. `Workspace`⭢ The ancestor of all `RigidBodies`.
+ 
+ ------- 
+ ii. `Rectangle`⭢ A basic rectangle.
+ 
+ ------- 
   iii. `Ellipse`⭢ An ellipse.
+  
+  
 ------
   iv. `Polygon`⭢ A polygon that must be convex that allows for `Rotation` and the setting of `Vertices` as `UDim2` values.
 - `Interface`: Inherits from UIBase and has several internal SubClasses that affect rendering. It adds functionality for BackgroundColour, OutlineColour and TextColour where applicable. SubClasses are:
