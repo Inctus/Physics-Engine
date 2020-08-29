@@ -1,6 +1,9 @@
 # PyGame Physics Engine
+------- 
 ### Description:
 This is my OCR A Level Cousework. It is a simple, lightweight 2D physics solver written in [Python](https://www.python.org) using the [PyGame](https://www.pygame.org/wiki/about) library. It will have functionality to Pause, Play and Save keyframes from the simulation, allowing for collaboration on projects by multiple people.
+
+------- 
 ### Classes:
 - `UDim2`: A lightweight class that allows positioning of UI elements using percentages and a pixel offset.
 ------
