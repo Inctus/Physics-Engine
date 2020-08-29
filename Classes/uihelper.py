@@ -24,12 +24,12 @@ classNames = [
 ]
 
 # >> FUNCTIONS <<
-def initialise(ss): # ss -> Vector2
+def init(ss): # ss -> Vector2
 	global screenSize
 	screenSize = ss
 
 # >> CLASSES <<
-class UIObject: # No Inheritance necessary.
+class UIBase: # No Inheritance necessary.
 
 	def __init__(self, className, parent=None):
 		# >> ClassName
