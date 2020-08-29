@@ -11,15 +11,19 @@ This is my OCR A Level Cousework. It is a simple, lightweight 2D physics solver 
   iv. `Polygon`⭢ A polygon that must be convex that allows for `Rotation` and the setting of `Vertices` as `UDim2` values.
 - `Interface`: Inherits from UIBase and has several internal SubClasses that affect rendering. It adds functionality for BackgroundColour, OutlineColour and TextColour where applicable. SubClasses are:
   i. `TextLabel`⭢ A label that displays text. Introduces new attributes:
-    a. `TextColour`⭢ The colour of the text.
+   
+   a. `TextColour`⭢ The colour of the text.
     b. `Text`⭢ The actual text to be displayed.
   ii. `TextButton`⭢ A label that displays text and has a callback for clicks. Introduces new attributes:
-    a. `TextColour`⭢ The colour of the text.
+   
+   a. `TextColour`⭢ The colour of the text.
     b. `Text`⭢ The actual text to be displayed.
     c. `Callback`⭢ The function to be ran every time the button is clicked.
   iii. `ImageLabel`⭢ A label that displays an image. Introduces new attribute:
+   
     a. `Image`⭢ The file to be displayed.
   iv. `ImageButton`⭢ A label that displays an image and has a callback for clicks. Introduces new attributes:
+    
     a. `Image`⭢ The file to be displayed.
     b. `Callback`⭢ The function to be ran every time the image is clicked.
 - `RigidBody`: Inherits from UIBase. It allows for the efficient creation and manipulation of RigidBodies and allows for Physics interactions with them. They must be a descendant of the `Workspace` when they are parented. Has one internal SubClass:
