@@ -258,8 +258,23 @@ class Vec2d(object):
         self.x = x
         self.y = y
 
+    def rotateRadians(self, radians):
+        cos = math.cos(radians)
+        sin = math.sin(radians)
+        x = self.x*cos - self.y*sin
+        y = self.x*sin + self.y*cos
+        self.x = x
+        self.y = y
+
     def rotated(self, angle_degrees):
         radians = math.radians(angle_degrees)
+        cos = math.cos(radians)
+        sin = math.sin(radians)
+        x = self.x*cos - self.y*sin
+        y = self.x*sin + self.y*cos
+        return Vec2d(x, y)
+
+    def rotatedRadians(self, radians):
         cos = math.cos(radians)
         sin = math.sin(radians)
         x = self.x*cos - self.y*sin

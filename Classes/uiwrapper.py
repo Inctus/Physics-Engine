@@ -16,7 +16,6 @@ from uuid import uuid1 as UUID # ID Generation
 
 # >> GLOBAL VARIABLES <<
 screenSize = Vector2(0,0) # A global variable which will be used to store the ScreenSize as a Vector
-
 classNames = [
 "rectangle", # Again, just for UI elements
 "ellipse", # This is just for UI elements
@@ -47,7 +46,7 @@ class UIObject: # No Inheritance necessary.
 		self.Anchored = True
 		self.ZIndex = 0
 		self.ID = UUID()
-		self.Rotation = 0
+		self.Rotation = 0 # In radians to simplify calculations
 		# >> Private Attributes
 		self._Parent = None
 		self._Position = UDim2()
@@ -148,46 +147,32 @@ class UIObject: # No Inheritance necessary.
 			return self.Position.ToVector2(screenSize)
 
 	@property
-	def Vertices(self):
-		newVertices = []
+	def SpriteVertices(self):
 		parentSize = screenSize
 		if self.Parent:
 			parentSize = self.Parent.AbsoluteSize
-		for vertex in self._Vertices:
-			newVertices.append(self.AbsolutePosition + vertex.ToVector2(parentSize))
-		return newVertices
+		return [vertex.ToVector2(parentSize) for vertex in self._Vertices]
 
 	@property
-	def LocalVertices(self):
-		parentSize = screenSize
-		if self.Parent:
-			parentSize = self.Parent.AbsoluteSize
-		newVertices = [vertex.ToVector2(parentSize) for vertex in self._Vertices]
-		return newVertices
-
-	@property
-	def Center(self):
+	def SpriteCenter(self): # Works for all CONVEX POLYGONS
 		mid = Vector2()
-		for vertex in self.LocalVertices:
+		for vertex in self.SpriteVertices:
 			mid = mid + vertex
 		mid = mid / len(self._Vertices)
 		return mid
 
 	@property
-	def PlanarVertices(self):
-		newVertices = []
-		center = self.Center
-		for vertex in self.LocalVertices:
-			newVertices.append(vertex-center)
-		return newVertices
-
+	def Vertices(self):
+		center = self.SpriteCenter
+		return [(vertex-center).rotatedRadians(self.Rotation) + self.AbsolutePosition for vertex in self.SpriteVertices]
+	
 	@property
 	def Size(self):
 		return self._Size
 
 	@Size.setter
 	def Size(self, newSize):
-		self.Size = newSize
+		self._Size = newSize
 
 	@property
 	def Position(self):
@@ -195,11 +180,11 @@ class UIObject: # No Inheritance necessary.
 
 	@Position.setter
 	def Position(self, newPosition):
-		self.Position = newPosition
+		self._Position = newPosition
 	
 	@property
 	def Rectangle(self):
 		return pygame.Rect(
-			self.AbsolutePos.x, self.AbsolutePos.y,
+			self.AbsolutePosition.x, self.AbsolutePosition.y,
 			self.AbsoluteSize.x, self.AbsoluteSize.y
 			)
