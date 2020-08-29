@@ -22,6 +22,12 @@ uiBaseClassNames = [
 "Polygon", # for all shapes I'll use this
 "Workspace" # workspace = physics parent
 ]
+interfaceClassNames = [
+"TextLabel",
+"TextButton",
+"ImageLabel",
+"ImageButton"
+]
 
 # >> FUNCTIONS <<
 def init(ss): # ss -> Vector2
