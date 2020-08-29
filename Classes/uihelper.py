@@ -9,7 +9,7 @@
 # >> MODULES << 
 from pygame import Rect as Rectangle # I like longer variable names
 from pygame import Color as Colour # UK > US
-from vector2d import Vec2d as Vector2 # 2D Vector Class from pygame
+from vector2d import Vector2 # 2D Vector Class from pygame
 from udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
 from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation

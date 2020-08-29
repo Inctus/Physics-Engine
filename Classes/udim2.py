@@ -6,7 +6,7 @@
 # It allows for easy intuitive UI positioning
 
 # >> MODULES <<
-from vector2d import Vec2d as Vector2 # 2D Vector Class from pygame
+from vector2d import Vector2 # 2D Vector Class from pygame
 
 # >> CLASSES <<
 class UDim:
