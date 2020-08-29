@@ -16,7 +16,7 @@ from uuid import uuid1 as UUID # ID Generation
 
 # >> GLOBAL VARIABLES <<
 screenSize = Vector2(0,0) # A global variable which will be used to store the ScreenSize as a Vector
-classNames = [
+uiBaseClassNames = [
 "Rectangle", # Again, just for UI elements
 "Ellipse", # This is just for UI elements
 "Polygon", # for all shapes I'll use this
@@ -33,7 +33,7 @@ class UIBase: # No Inheritance necessary.
 
 	def __init__(self, className, parent=None):
 		# >> ClassName
-		if className in classNames:
+		if className in uiBaseClassNames:
 			self.ClassName = className
 		else:
 			raise ValueError(f"Unknown className, {className}")
@@ -43,10 +43,10 @@ class UIBase: # No Inheritance necessary.
 		self.Name = ""
 		self.Visible = True
 		self.Colour = Colour(255,255,255)
-		self.Anchored = True
 		self.ZIndex = 0
 		self.ID = UUID()
-		self.Rotation = 0 # In radians to simplify calculations
+		if self.ClassName == "Polygon":
+			self._Rotation = 0 # In radians to simplify calculations
 		# >> Private Attributes
 		self._Parent = None
 		self._Position = UDim2()
@@ -59,6 +59,12 @@ class UIBase: # No Inheritance necessary.
 			self._Parent._RemoveChild(self)
 		for child in self._Children:
 			del(child)
+
+	def __eq__(self, other):
+		return self.ID == other.ID
+
+	def __str__(self):
+		return f"UIBase({self.ClassName}) {self.Name}"
 
 	def _AddChild(self, newChild):
 		if not newChild in self._Children:
@@ -79,7 +85,6 @@ class UIBase: # No Inheritance necessary.
 		clone.Name = self.Name
 		clone.Visible = True
 		clone.Colour = self.Colour
-		clone.Anchored = self.Anchored
 		clone.ZIndex = self.ZIndex
 		clone.Rotation = self.Rotation
 		# >> Private Attributes
@@ -119,12 +124,15 @@ class UIBase: # No Inheritance necessary.
 	def ChangeVertex(self, index, newValue):
 		self._Vertices[index] = newValue
 
+	def SetVertices(self, newVertices):
+		self._Vertices = newVertices
+
 	@property
 	def Parent(self):
 		return self._Parent
 
 	@Parent.setter
-	def Parent(self, newParent):
+	def Parent(self, newParent): # reParenting instances yields. Set attributes before parenting.
 		if self._Parent:
 			self._Parent._RemoveChild(self)
 		self._Parent = newParent
@@ -188,3 +196,17 @@ class UIBase: # No Inheritance necessary.
 			self.AbsolutePosition.x, self.AbsolutePosition.y,
 			self.AbsoluteSize.x, self.AbsoluteSize.y
 			)
+
+	@property
+	def Rotation():
+		if self.ClassName == "Polygon":
+			return self._Rotation
+		else:
+			raise AttributeError(f"{str(self)} doesn't have a Rotation.")
+
+	@Rotation.setter
+	def Rotation(self, newRotation):
+		if self.ClassName == "Polygon":
+			self._Rotation = newRotation
+		else:
+			raise AttributeError(f"{str(self)} doesn't have a Rotation.")
