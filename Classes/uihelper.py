@@ -23,10 +23,13 @@ uiBaseClassNames = [
 "Workspace" # workspace = physics parent
 ]
 interfaceClassNames = [
-"TextLabel",
+"TextLabel", 
 "TextButton",
 "ImageLabel",
 "ImageButton"
+]
+rigidBodyClassNames = [
+"Polygon"
 ]
 
 # >> FUNCTIONS <<
@@ -216,3 +219,11 @@ class UIBase: # No Inheritance necessary.
 			self._Rotation = newRotation
 		else:
 			raise AttributeError(f"{str(self)} doesn't have a Rotation.")
+
+class RigidBody(UIBase):
+
+	pass
+
+class Interface(UIBase):
+
+	pass
