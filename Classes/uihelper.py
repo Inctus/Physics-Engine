@@ -17,10 +17,10 @@ from uuid import uuid1 as UUID # ID Generation
 # >> GLOBAL VARIABLES <<
 screenSize = Vector2(0,0) # A global variable which will be used to store the ScreenSize as a Vector
 classNames = [
-"rectangle", # Again, just for UI elements
-"ellipse", # This is just for UI elements
-"polygon", # for all shapes I'll use this
-"workspace" # workspace = physics parent
+"Rectangle", # Again, just for UI elements
+"Ellipse", # This is just for UI elements
+"Polygon", # for all shapes I'll use this
+"Workspace" # workspace = physics parent
 ]
 
 # >> FUNCTIONS <<
