@@ -22,6 +22,8 @@ This is my OCR A Level Cousework. It is a simple, lightweight 2D physics solver 
   
 ------
   iv. `Polygon`⭢ A polygon that must be convex that allows for `Rotation` and the setting of `Vertices` as `UDim2` values.
+  
+------- 
 - `Interface`: Inherits from UIBase and has several internal SubClasses that affect rendering. It adds functionality for BackgroundColour, OutlineColour and TextColour where applicable. SubClasses are:
 -----
   i. `TextLabel`⭢ A label that displays text. Introduces new attributes:
