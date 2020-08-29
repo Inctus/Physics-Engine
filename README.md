@@ -4,7 +4,9 @@ This is my OCR A Level Cousework. It is a simple, lightweight 2D physics solver 
 ### Classes:
 - `UDim2`: A lightweight class that allows positioning of UI elements using percentages and a pixel offset.
 - `Vector2`: [PyGame](https://www.pygame.org/wiki/about)'s 2D vector class that is used to position vertices and every element on the screen.
-- `UIWrapper`: A UI wrapper for [PyGame](https://www.pygame.org/wiki/about) that allows for vertex manipulation and rotation of objects before they are drawn onto the PyGame screen. It also allows for efficient creation and management of said objects, via a tree structure. It allows for traversal via a Child-Parent heirachy stemming from a physics viewport, called the Workspace.
+- `UIBase`: A UI Wrapper that simplifies creation and management of UI. Has several internal SubClasses that affect rendering. These are `Workspace`, a UI Element that acts as the ancestor for all `RigidBody` instances, a `Rectangle`, an `Ellipse` and a `Polygon`.
+  - `Interface`: Inherits from UIBase and has several internal SubClasses that affect rendering. Allows for easy manipulation and creation of UI Elements, including `TextLabels`, `TextButtons`, `ImageButtons` and `ImageLabels`.
+  - `RigidBody`: Inherits from UIBase. Has one internal SubClass, `Polygon`. It allows for the efficient creation and manipulation of RigidBodies and allows for Physics interactions with them. They must be a descendant of the `Workspace` when they are parented.
 
 ### Timeline
 The majority of the project will be completed within a week.
