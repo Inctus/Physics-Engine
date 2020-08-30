@@ -6,3 +6,4 @@
 # as opposed to having to search through mutliple files.
 
 gravity = 0.1
+drag = 0.01
