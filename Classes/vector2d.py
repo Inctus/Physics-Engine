@@ -303,6 +303,12 @@ class Vector2(object):
         dot = self.x*other[0] + self.y*other[1]
         return math.degrees(math.atan2(cross, dot))
 
+    def get_radians_between(self, other):
+        cross = self.x*other[1] - self.y*other[0]
+        dot = self.x*other[0] + self.y*other[1]
+        return math.atan2(cross, dot)
+
+
     def normalized(self):
         length = self.length
         if length != 0:

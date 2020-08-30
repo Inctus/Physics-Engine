@@ -13,23 +13,20 @@ from vector2d import Vector2 # 2D Vector Class from pygame
 from udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
 from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
+from settings import * # Grab settings like gravity, drag, friction, elasticity
+import math
 
 # >> GLOBAL VARIABLES <<
 screenSize = Vector2(0,0) # A global variable which will be used to store the ScreenSize as a Vector
-uiBaseClassNames = [
+classNames = [
 "Rectangle", # Again, just for UI elements
 "Ellipse", # This is just for UI elements
 "Polygon", # for all shapes I'll use this
 "Workspace" # workspace = physics parent
-]
-interfaceClassNames = [
 "TextLabel", 
 "TextButton",
 "ImageLabel",
 "ImageButton"
-]
-rigidBodyClassNames = [
-"Polygon"
 ]
 
 # >> FUNCTIONS <<
@@ -41,13 +38,11 @@ def init(ss): # ss -> Vector2
 class UIBase: # No Inheritance necessary.
 
 	def __init__(self, className, parent=None):
-		# >> ClassName
-		if className in uiBaseClassNames:
+		# >> Class Names
+		if className in classNames:
 			self.ClassName = className
 		else:
 			raise ValueError(f"Unknown className, {className}")
-		if parent:
-			self._Parent = parent
 		# >> Attributes
 		self.Name = ""
 		self.Visible = True
@@ -57,11 +52,13 @@ class UIBase: # No Inheritance necessary.
 		if self.ClassName == "Polygon":
 			self._Rotation = 0 # In radians to simplify calculations
 		# >> Private Attributes
-		self._Parent = None
+		self._Parent = parent
 		self._Position = UDim2()
 		self._Size = UDim2()
 		self._Vertices = [] # List of UDim2 Values for easy manipulation
 		self._Children = []
+
+	__slots__ = ["Name", "Visible", "Colour", "ZIndex", "ID", "ClassName", "_Rotation", "_Parent", "_Position", "_Size", "_Vertices", "_Children"]
 
 	def __del__(self): # Deletion Behaviour
 		if self._Parent:
@@ -222,7 +219,60 @@ class UIBase: # No Inheritance necessary.
 
 class RigidBody(UIBase):
 
-	pass
+	def __init__(self, className="Polygon", parent=None):
+		UIBase.__init__(self, className, parent)
+
+		self.Position = Vector2() # Convert to Vector2. No need for UDim2 anymore.
+		self.Velocity = Vector2() # Initial velocity has to be set while self.Velocity = Vector2()
+		self.Acceleration = Vector2()
+		self.Rotation = 0
+		self.AngularVelocity = 0 
+		self.AngularAcceleration = 0 
+		
+		self._Forces = [] # Forces with a force and an origin (origins are local)
+		self._Impulses = [] # Forces with a duration of 1 frame.
+
+		self.Anchored = False
+		self.Mass = 1
+
+		self.AddForce(Vector2(0, -gravity)) # Add gravity in
+
+	def addForce(self, newForce, newForceOrigin=Vector2()):
+		self._Forces.append((newForce, newForceOrigin)) # Origin of force determines angular velocity component.
+
+	def addImpulse(self, newImpulse, newImpulseOrigin=Vector2()):
+		self._Impulses.append((newImpulse, newImpulseOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
+
+	def handleForces(self):
+		acceleration = Vector2()
+		angularAcceleration = 0
+		for force in self._Forces:
+			acceleration += force[0]
+			if not (force[1] == Vector2()):
+				angularAcceleration += math.sin(force[0].get_radians_between(force[1])) * force[0].length * force[1].length / self.Mass
+		for impulse in self._Impulses:
+			acceleration += impulse[0]
+			if not (impulse[1] == Vector2()):
+				angularAcceleration += math.sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length / self.Mass
+		angularAcceleration %= math.pi*2
+		self._Impulses = []
+		return acceleration, angularAcceleration
+
+	def update(self, dt): # Delta time parameter. Help from https://en.wikipedia.org/wiki/Verlet_integration
+		newPosition = self.Position + self.Velocity*dt + self.Acceleration*dt*dt*0.5
+		newRotation = self.Rotation + self.AngularVelocity*dt + self.Acceleration*dt*dt*0.5
+		newAcceleration, newAngularAcceleration = self.handleForces()
+		newVelocity = self.Velocity + (self.Acceleration+newAcceleration)*dt*0.5
+		newAngularVelocity = self.AngularVelocity + (self.AngularAcceleration+newAngularAcceleration)*dt*0.5
+		self.Position, self.Velocity, self.Acceleration = newPosition, newVelocity, newAcceleration
+		self.Rotation, self.AngularVelocity, self.AngularAcceleration = newRotation, newAngularVelocity, newAngularAcceleration
+
+	@property # Polymorphism to conform with Vector2
+	def AbsolutePosition(self):
+		if self.Parent:
+			return self.Position + self.Parent.AbsolutePosition
+		else:
+			return self.Position
 
 class Interface(UIBase):
 
