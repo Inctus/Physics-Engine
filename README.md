@@ -41,18 +41,18 @@ This is my OCR A Level Cousework. It is a simple, lightweight 2D physics solver 
   
     a. "Position"⭢ The Velocity of the RigidBody, as a Vector2
     
-    a. "Velocity"⭢ The Velocity of the RigidBody.
+    b. "Velocity"⭢ The Velocity of the RigidBody.
     
-    b. "Acceleration"⭢ The Acceleration of the RigidBody.
+    c. "Acceleration"⭢ The Acceleration of the RigidBody.
     
-    a. "AngularVelocity"⭢ The Velocity of the RigidBody.
+    d. "AngularVelocity"⭢ The Velocity of the RigidBody.
     
-    b. "AngularAcceleration"⭢ The Acceleration of the RigidBody.
+    e. "AngularAcceleration"⭢ The Acceleration of the RigidBody.
     
-    c. "AddForce"⭢ Allows for you to manipulate the acceleration.
+    f. "AddForce"⭢ Allows for you to manipulate the acceleration.
     
-    d. "AddImpulse"⭢ Allows for you to manipulate the acceleration (for one frame).
+    g. "AddImpulse"⭢ Allows for you to manipulate the acceleration (for one frame).
     
-    e. "Mass"⭢ An optional attribute that affects collisions.
+    h. "Mass"⭢ An optional attribute that affects collisions.
 ### Timeline
 The majority of the project will be completed within a week.
