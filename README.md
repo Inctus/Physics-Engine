@@ -46,6 +46,5 @@ This is my OCR A Level Cousework. It is a simple, lightweight 2D physics solver 
     c. `AddForce`⭢ Allows for you to manipulate the acceleration.
     
     d. `Mass`⭢ An optional attribute that affects collisions.
-    ------- 
 ### Timeline
 The majority of the project will be completed within a week.
