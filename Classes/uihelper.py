@@ -23,8 +23,6 @@ classNames = [
 "Ellipse", # This is just for UI elements
 "Polygon", # for all shapes I'll use this
 "Workspace" # workspace = physics parent
-"TextLabel", 
-"TextButton",
 "ImageLabel",
 "ImageButton"
 ]
@@ -243,7 +241,7 @@ class RigidBody(UIBase):
 	def addImpulse(self, newImpulse, newImpulseOrigin=Vector2()):
 		self._Impulses.append((newImpulse, newImpulseOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
 
-	def handleForces(self):
+	def handleForces(self): # TODO: add in drag
 		acceleration = Vector2()
 		angularAcceleration = 0
 		for force in self._Forces:
@@ -276,4 +274,6 @@ class RigidBody(UIBase):
 
 class Interface(UIBase):
 
-	pass
+	def __init__(self, className, parent=None):
+
+
