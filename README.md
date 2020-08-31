@@ -28,23 +28,31 @@ This is my OCR A Level Cousework. It is a simple, lightweight 2D physics solver 
  ------- 
   iii. `ImageLabel`⭢ A label that displays an image. Introduces new attribute:
    
-    a. `Image`⭢ The file to be displayed.
+    a. "Image"⭢ The file to be displayed.
  ------- 
   iv. `ImageButton`⭢ A label that displays an image and has a callback for clicks. Introduces new attributes:
     
-    a. `Image`⭢ The file to be displayed.
-    b. `Callback`⭢ The function to be ran every time the image is clicked.
+    a. "Image"⭢ The file to be displayed.
+    b. "Callback"⭢ The function to be ran every time the image is clicked.
 ------- 
 - `RigidBody`: Inherits from UIBase. It allows for the efficient creation and manipulation of RigidBodies and allows for Physics interactions with them. They must be a descendant of the `Workspace` when they are parented. Has one internal SubClass:
  ------- 
   i. `Polygon`⭢ A polygon that must be convex and allow for `Rotation`, setting `Vertices`. Due to it being a RigidBody Physics is applied to it. Introduces several new attributes:
-
-    a. `Velocity`⭢ The Velocity of the RigidBody.
+  
+    a. "Position"⭢ The Velocity of the RigidBody, as a Vector2
     
-    b. `Acceleration`⭢ The Acceleration of the RigidBody.
+    a. "Velocity"⭢ The Velocity of the RigidBody.
     
-    c. `AddForce`⭢ Allows for you to manipulate the acceleration.
+    b. "Acceleration"⭢ The Acceleration of the RigidBody.
     
-    d. `Mass`⭢ An optional attribute that affects collisions.
+    a. "AngularVelocity"⭢ The Velocity of the RigidBody.
+    
+    b. "AngularAcceleration"⭢ The Acceleration of the RigidBody.
+    
+    c. "AddForce"⭢ Allows for you to manipulate the acceleration.
+    
+    d. "AddImpulse"⭢ Allows for you to manipulate the acceleration (for one frame).
+    
+    e. "Mass"⭢ An optional attribute that affects collisions.
 ### Timeline
 The majority of the project will be completed within a week.
