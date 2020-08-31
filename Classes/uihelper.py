@@ -9,11 +9,14 @@
 # >> MODULES << 
 from pygame import Rect as Rectangle # I like longer variable names
 from pygame import Color as Colour # UK > US
+from pygame import image, Rect
 from vector2d import Vector2 # 2D Vector Class from pygame
+
 from udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
 from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
 from settings import * # Grab settings like gravity, drag, friction, elasticity
+
 import math
 
 # >> GLOBAL VARIABLES <<
@@ -196,7 +199,7 @@ class UIBase: # No Inheritance necessary.
 	
 	@property
 	def Rectangle(self):
-		return pygame.Rect(
+		return Rect(
 			self.AbsolutePosition.x, self.AbsolutePosition.y,
 			self.AbsoluteSize.x, self.AbsoluteSize.y
 			)
@@ -216,6 +219,8 @@ class UIBase: # No Inheritance necessary.
 			raise AttributeError(f"{str(self)} doesn't have a Rotation.")
 
 class RigidBody(UIBase):
+
+	__slots__ = ["Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration"]
 
 	def __init__(self, className="Polygon", parent=None):
 		UIBase.__init__(self, className, parent)
@@ -274,6 +279,21 @@ class RigidBody(UIBase):
 
 class Interface(UIBase):
 
+	__slots__ = ["_Image", "Callback"]
+
 	def __init__(self, className, parent=None):
+		UIBase.__init__(self, className, parent)
 
+		self._Image = None
+		self.Callback = None
 
+	@property
+	def Image(self):
+		return self._Image
+
+	@Image.setter
+	def Image(self, fileName):
+		self._Image = image.load(fileName).convert()
+
+	def draw(self, screen):
+		screen.blit(self.Image, self.Rectangle)
