@@ -9,6 +9,6 @@
 # >> MODULES <<
 import pygame
 
-from classes.vector2d import Vector2
-from classes.udim2 import UDim2
-from classes.uihelper import UIBase, RigidBody, Interface
+import engine.engine_model
+
+engine = engine.engine_model.CreateModel()

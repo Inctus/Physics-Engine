@@ -10,3 +10,14 @@ drag = 0.01 # Coefficient of Drag
 
 screenSize = (800, 500) # Size of screen
 fullScreen = False # If the simulation should be ran fullscreen. I think not.
+
+classNames = [
+	"Workspace", # workspace = physics parent
+	"EngineModel", # Parent of everything
+	"UserInterface", # Parent of interface objects
+	"ImageLabel", # Image Label
+	"ImageButton", # Image Label with callback
+	"Rectangle", # Again, just for UI elements
+	"Ellipse", # This is just for UI elements
+	"Polygon", # for all shapes I'll use this
+]

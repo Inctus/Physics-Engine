@@ -13,22 +13,11 @@ from pygame import image, Rect
 
 from classes.vector2d import Vector2 # 2D Vector Class from pygame
 from classes.udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
-from shared.settings import gravity,drag,screenSize # Grab settings like gravity, drag, friction, elasticity
+from shared.settings import gravity,drag,screenSize,classNames # Grab settings like gravity, drag, friction, elasticity
 
 from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
 from math import pi, sin
-
-# >> GLOBAL VARIABLES <<
-classNames = [
-"Rectangle", # Again, just for UI elements
-"Ellipse", # This is just for UI elements
-"Polygon", # for all shapes I'll use this
-"Workspace", # workspace = physics parent
-"EngineModel", # Parent of everything
-"ImageLabel",
-"ImageButton"
-]
 
 # >> CLASSES <<
 class UIBase: # No Inheritance necessary.
@@ -59,7 +48,7 @@ class UIBase: # No Inheritance necessary.
 	def __del__(self): # Deletion Behaviour
 		if self._Parent:
 			self._Parent._RemoveChild(self)
-		if self.__Children:
+		if self._Children:
 			for child in self._Children:
 				del(child)
 
@@ -70,12 +59,11 @@ class UIBase: # No Inheritance necessary.
 		return f"UIBase({self.ClassName}) {self.Name}"
 
 	def _GetDescendantTree(self, depth=0):
-		string = "".join("\t" for i in range(0, depth))
-		if self.__Children:
-			string = string.join(child._GetDescendantTree(depth+1)+"\n" for child in self.__Children)
-			return string
-		else:
-			return self.ClassName
+		string = "".join("\t" for i in range(0, depth)) + str(self.__str__())
+		if self._Children:
+			for child in self._Children:
+				string = string +"\n"+ child._GetDescendantTree(depth+1)
+		return string
 
 	def _AddChild(self, newChild):
 		if not newChild in self._Children:
