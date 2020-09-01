@@ -59,14 +59,23 @@ class UIBase: # No Inheritance necessary.
 	def __del__(self): # Deletion Behaviour
 		if self._Parent:
 			self._Parent._RemoveChild(self)
-		for child in self._Children:
-			del(child)
+		if self.__Children:
+			for child in self._Children:
+				del(child)
 
 	def __eq__(self, other):
 		return self.ID == other.ID
 
 	def __str__(self):
 		return f"UIBase({self.ClassName}) {self.Name}"
+
+	def _GetDescendantTree(self, depth=0):
+		string = "".join("\t" for i in range(0, depth))
+		if self.__Children:
+			string = string.join(child._GetDescendantTree(depth+1)+"\n" for child in self.__Children)
+			return string
+		else:
+			return self.ClassName
 
 	def _AddChild(self, newChild):
 		if not newChild in self._Children:
@@ -236,13 +245,13 @@ class RigidBody(UIBase):
 	def __str__(self):
 		return f"RigidBody({self.ClassName}) {self.Name}"
 
-	def addForce(self, newForce, newForceOrigin=Vector2()):
+	def AddForce(self, newForce, newForceOrigin=Vector2()):
 		self._Forces.append((newForce, newForceOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
 
-	def addImpulse(self, newImpulse, newImpulseOrigin=Vector2()):
+	def AddImpulse(self, newImpulse, newImpulseOrigin=Vector2()):
 		self._Impulses.append((newImpulse, newImpulseOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
 
-	def handleForces(self): # TODO: add in drag
+	def HandleForces(self): # TODO: add in drag
 		acceleration = Vector2()
 		angularAcceleration = 0
 		for force in self._Forces:
@@ -258,11 +267,11 @@ class RigidBody(UIBase):
 		acceleration += Vector2(0, -gravity*2) # Apply gravity as an impulse.
 		return acceleration, angularAcceleration
 
-	def update(self, dt): # Delta time parameter. Help from https://en.wikipedia.org/wiki/Verlet_integration
+	def Update(self, dt): # Delta time parameter. Help from https://en.wikipedia.org/wiki/Verlet_integration
 		if not self.Anchored:
 			newPosition = self.Position + self.Velocity*dt + self.Acceleration*dt*dt*0.5
 			newRotation = self.Rotation + self.AngularVelocity*dt + self.Acceleration*dt*dt*0.5
-			newAcceleration, newAngularAcceleration = self.handleForces()
+			newAcceleration, newAngularAcceleration = self.HandleForces()
 			newVelocity = self.Velocity + (self.Acceleration+newAcceleration)*dt*0.5
 			newAngularVelocity = self.AngularVelocity + (self.AngularAcceleration+newAngularAcceleration)*dt*0.5
 			self.Position, self.Velocity, self.Acceleration = newPosition, newVelocity, newAcceleration
@@ -297,5 +306,5 @@ class Interface(UIBase):
 		if self.ClassName == "ImageLabel" or self.ClassName == "ImageButton":
 			self._Image = image.load(fileName).convert()
 
-	def draw(self, screen):
+	def Draw(self, screen):
 		screen.blit(self.Image, self.Rectangle)
