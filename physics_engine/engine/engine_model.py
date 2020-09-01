@@ -15,7 +15,7 @@ from shared.settings import screenSize
 
 # >> FUNCTIONS <<
 def CreateModel():
-	game = UIBase("EngineModel")
+	game = UIBase("EngineModel") # This is the parent of all things within the engine
 	game.Name = "PhysicsEngine"
 	workspace = UIBase("Workspace")
 	workspace.Name = "Workspace"
@@ -24,3 +24,9 @@ def CreateModel():
 	userInterface.Name = "UserInterface"
 	userInterface.Parent = game
 	return game # Constructed tree structure
+
+# def RenderChildren(object):
+
+# def CreateRigidBody(nSides):
+
+# def CreateRigidBodyFromVertices(vertices):

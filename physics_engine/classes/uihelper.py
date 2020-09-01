@@ -15,7 +15,7 @@ from classes.vector2d import Vector2 # 2D Vector Class from pygame
 from classes.udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
 from shared.settings import gravity,drag,screenSize,classNames # Grab settings like gravity, drag, friction, elasticity
 
-from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
+from copy import deepcopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
 from math import pi, sin
 
@@ -58,12 +58,21 @@ class UIBase: # No Inheritance necessary.
 	def __str__(self):
 		return f"UIBase({self.ClassName}) {self.Name}"
 
-	def _GetDescendantTree(self, depth=0):
-		string = "".join("\t" for i in range(0, depth)) + str(self.__str__())
+	__repr__=__str__
+
+	def __getitem__(self, index):
 		if self._Children:
 			for child in self._Children:
-				string = string +"\n"+ child._GetDescendantTree(depth+1)
-		return string
+				if child.Name == index:
+					return child
+		raise ValueError(f"{str(self)} has no such child {index}")
+
+	def __getattr__(self, index):
+		if self.__getattribute__("_Children"):
+			for child in self.__getattribute__("_Children"):
+				if child.Name == index:
+					return child
+		raise AttributeError(f"{str(self)} has no such attribute {index}")
 
 	def _AddChild(self, newChild):
 		if not newChild in self._Children:
@@ -74,9 +83,14 @@ class UIBase: # No Inheritance necessary.
 			self._Children.remove(oldChild)
 
 	def GetChildren(self):
-		orderedChildren = copy.deepcopy(self._Children)
+		orderedChildren = deepcopy(self._Children)
 		orderedChildren.sort(key=lambda n: n.ZIndex) # Order children by ZIndex for rendering.
 		return orderedChildren
+
+	def RemoveChildren(self):
+		if self._Children:
+			for child in self._Children:
+				del(child)
 
 	def Clone(self):
 		# >> Attributes
@@ -210,6 +224,21 @@ class UIBase: # No Inheritance necessary.
 		else:
 			raise AttributeError(f"{str(self)} doesn't have a Rotation.")
 
+	@property
+	def Tree(self):
+		string = str(self.__str__())
+		if self._Children:
+			for idx,child in enumerate(self._Children):
+				string = string +f"\n{idx+1}."+ child._DescendantTree(1)
+		return string
+
+	def _DescendantTree(self, depth=0):
+		string = "".join("\t" for i in range(0, depth)) + str(self.__str__())
+		if self._Children:
+			for idx,child in enumerate(self._Children):
+				string = string +f"\n{idx+1}."+ child._DescendantTree(depth+1)
+		return string
+
 class RigidBody(UIBase):
 
 	__slots__ = ["Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration"]
@@ -232,6 +261,18 @@ class RigidBody(UIBase):
 
 	def __str__(self):
 		return f"RigidBody({self.ClassName}) {self.Name}"
+
+	@UIBase.Parent.setter
+	def Parent(self, newParent): # reParenting instances yields. Set attributes before parenting.
+		if newParent!=None and not newParent.IsDescendantOfClass("Workspace"):
+			raise ValueError(f"{str(newParent)} is not descended from a valid Workspace")
+		if self._Parent:
+			self._Parent._RemoveChild(self)
+		self._Parent = newParent
+		if newParent:
+			newParent._AddChild(self)
+			while not newParent.FindFirstChildOfID(self.ID):
+				pass
 
 	def AddForce(self, newForce, newForceOrigin=Vector2()):
 		self._Forces.append((newForce, newForceOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
@@ -272,6 +313,7 @@ class RigidBody(UIBase):
 		else:
 			return self.Position
 
+
 class Interface(UIBase):
 
 	__slots__ = ["_Image", "Callback"]
@@ -284,6 +326,18 @@ class Interface(UIBase):
 
 	def __str__(self):
 		return f"Interface({self.ClassName}) {self.Name}"
+
+	@UIBase.Parent.setter
+	def Parent(self, newParent): # reParenting instances yields. Set attributes before parenting.
+		if newParent!=None and not newParent.IsDescendantOfClass("UserInterface"):
+			raise ValueError(f"{str(newParent)} is not descended from a valid UserInterface")
+		if self._Parent:
+			self._Parent._RemoveChild(self)
+		self._Parent = newParent
+		if newParent:
+			newParent._AddChild(self)
+			while not newParent.FindFirstChildOfID(self.ID):
+				pass
 
 	@property
 	def Image(self):

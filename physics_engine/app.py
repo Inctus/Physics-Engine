@@ -12,3 +12,6 @@ import pygame
 import engine.engine_model
 
 engine = engine.engine_model.CreateModel()
+print(engine.Tree)
+print(engine["Workspace"])
+print(engine.Workspace.Parent.UserInterface.Parent.GetChildren())
