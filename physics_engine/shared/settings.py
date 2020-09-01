@@ -6,4 +6,4 @@
 # as opposed to having to search through mutliple files.
 
 gravity = 0.1 # Acceleration due to gravity.
-drag = 0.01
+drag = 0.01 # Coefficient of Drag
