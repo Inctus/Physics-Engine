@@ -25,7 +25,7 @@ classNames = [
 "Ellipse", # This is just for UI elements
 "Polygon", # for all shapes I'll use this
 "Workspace", # workspace = physics parent
-"GameModel", # Parent of everything
+"EngineModel", # Parent of everything
 "ImageLabel",
 "ImageButton"
 ]
@@ -233,6 +233,9 @@ class RigidBody(UIBase):
 		self.Anchored = False
 		self.Mass = 1
 
+	def __str__(self):
+		return f"RigidBody({self.ClassName}) {self.Name}"
+
 	def addForce(self, newForce, newForceOrigin=Vector2()):
 		self._Forces.append((newForce, newForceOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
 
@@ -281,6 +284,9 @@ class Interface(UIBase):
 
 		self._Image = None
 		self.Callback = None
+
+	def __str__(self):
+		return f"Interface({self.ClassName}) {self.Name}"
 
 	@property
 	def Image(self):
