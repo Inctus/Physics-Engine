@@ -9,6 +9,6 @@
 # >> MODULES <<
 import pygame
 
-from Classes.vector2d import Vector2
-from Classes.udim2 import UDim2
-from Classes.uihelper import UIBase, RigidBody, Interface
+from classes.vector2d import Vector2
+from classes.udim2 import UDim2
+from classes.uihelper import UIBase, RigidBody, Interface

@@ -11,9 +11,9 @@ from pygame import Rect as Rectangle # I like longer variable names
 from pygame import Color as Colour # UK > US
 from pygame import image, Rect
 
-from .vector2d import Vector2 # 2D Vector Class from pygame
-from .udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
-from .settings import * # Grab settings like gravity, drag, friction, elasticity
+from classes.vector2d import Vector2 # 2D Vector Class from pygame
+from classes.udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
+from shared.settings import * # Grab settings like gravity, drag, friction, elasticity
 
 from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
