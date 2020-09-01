@@ -238,10 +238,8 @@ class RigidBody(UIBase):
 		self.Anchored = False
 		self.Mass = 1
 
-		self.AddForce(Vector2(0, -gravity)) # Add gravity in
-
 	def addForce(self, newForce, newForceOrigin=Vector2()):
-		self._Forces.append((newForce, newForceOrigin)) # Origin of force determines angular velocity component.
+		self._Forces.append((newForce, newForceOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
 
 	def addImpulse(self, newImpulse, newImpulseOrigin=Vector2()):
 		self._Impulses.append((newImpulse, newImpulseOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
@@ -253,12 +251,13 @@ class RigidBody(UIBase):
 			acceleration += force[0]
 			if not (force[1] == Vector2()):
 				angularAcceleration += math.sin(force[0].get_radians_between(force[1])) * force[0].length * force[1].length / self.Mass
-		for impulse in self._Impulses:
-			acceleration += impulse[0]
+		for impulse in self._Impulses: # Multiply impulses by 2 to negate division by two later. They provide instant accel.
+			acceleration += impulse[0]*2
 			if not (impulse[1] == Vector2()):
-				angularAcceleration += math.sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length / self.Mass
+				angularAcceleration += 2 * math.sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length / self.Mass
 		angularAcceleration %= math.pi*2
 		self._Impulses = []
+		acceleration += Vector2(0, -gravity*2) # Apply gravity as an impulse.
 		return acceleration, angularAcceleration
 
 	def update(self, dt): # Delta time parameter. Help from https://en.wikipedia.org/wiki/Verlet_integration
