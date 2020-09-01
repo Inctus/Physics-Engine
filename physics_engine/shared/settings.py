@@ -7,3 +7,6 @@
 
 gravity = 0.1 # Acceleration due to gravity.
 drag = 0.01 # Coefficient of Drag
+
+screenSize = (800, 500) # Size of screen
+fullScreen = False # If the simulation should be ran fullscreen. I think not.

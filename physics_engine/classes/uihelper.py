@@ -13,27 +13,22 @@ from pygame import image, Rect
 
 from classes.vector2d import Vector2 # 2D Vector Class from pygame
 from classes.udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
-from shared.settings import * # Grab settings like gravity, drag, friction, elasticity
+from shared.settings import gravity,drag,screenSize # Grab settings like gravity, drag, friction, elasticity
 
 from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
 from math import pi, sin
 
 # >> GLOBAL VARIABLES <<
-screenSize = Vector2(0,0) # A global variable which will be used to store the ScreenSize as a Vector
 classNames = [
 "Rectangle", # Again, just for UI elements
 "Ellipse", # This is just for UI elements
 "Polygon", # for all shapes I'll use this
-"Workspace" # workspace = physics parent
+"Workspace", # workspace = physics parent
+"GameModel", # Parent of everything
 "ImageLabel",
 "ImageButton"
 ]
-
-# >> FUNCTIONS <<
-def init(ss): # ss -> Vector2
-	global screenSize
-	screenSize = ss
 
 # >> CLASSES <<
 class UIBase: # No Inheritance necessary.
@@ -261,13 +256,14 @@ class RigidBody(UIBase):
 		return acceleration, angularAcceleration
 
 	def update(self, dt): # Delta time parameter. Help from https://en.wikipedia.org/wiki/Verlet_integration
-		newPosition = self.Position + self.Velocity*dt + self.Acceleration*dt*dt*0.5
-		newRotation = self.Rotation + self.AngularVelocity*dt + self.Acceleration*dt*dt*0.5
-		newAcceleration, newAngularAcceleration = self.handleForces()
-		newVelocity = self.Velocity + (self.Acceleration+newAcceleration)*dt*0.5
-		newAngularVelocity = self.AngularVelocity + (self.AngularAcceleration+newAngularAcceleration)*dt*0.5
-		self.Position, self.Velocity, self.Acceleration = newPosition, newVelocity, newAcceleration
-		self.Rotation, self.AngularVelocity, self.AngularAcceleration = newRotation, newAngularVelocity, newAngularAcceleration
+		if not self.Anchored:
+			newPosition = self.Position + self.Velocity*dt + self.Acceleration*dt*dt*0.5
+			newRotation = self.Rotation + self.AngularVelocity*dt + self.Acceleration*dt*dt*0.5
+			newAcceleration, newAngularAcceleration = self.handleForces()
+			newVelocity = self.Velocity + (self.Acceleration+newAcceleration)*dt*0.5
+			newAngularVelocity = self.AngularVelocity + (self.AngularAcceleration+newAngularAcceleration)*dt*0.5
+			self.Position, self.Velocity, self.Acceleration = newPosition, newVelocity, newAcceleration
+			self.Rotation, self.AngularVelocity, self.AngularAcceleration = newRotation, newAngularVelocity, newAngularAcceleration
 
 	@property # Polymorphism to conform with Vector2
 	def AbsolutePosition(self):
@@ -292,7 +288,8 @@ class Interface(UIBase):
 
 	@Image.setter
 	def Image(self, fileName):
-		self._Image = image.load(fileName).convert()
+		if self.ClassName == "ImageLabel" or self.ClassName == "ImageButton":
+			self._Image = image.load(fileName).convert()
 
 	def draw(self, screen):
 		screen.blit(self.Image, self.Rectangle)
