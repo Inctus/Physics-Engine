@@ -10,14 +10,14 @@
 from pygame import Rect as Rectangle # I like longer variable names
 from pygame import Color as Colour # UK > US
 from pygame import image, Rect
-from vector2d import Vector2 # 2D Vector Class from pygame
 
-from udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
+from .vector2d import Vector2 # 2D Vector Class from pygame
+from .udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
+from .settings import * # Grab settings like gravity, drag, friction, elasticity
+
 from copy import deepcopy as deepCopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
-from settings import * # Grab settings like gravity, drag, friction, elasticity
-
-import math
+from math import pi, sin
 
 # >> GLOBAL VARIABLES <<
 screenSize = Vector2(0,0) # A global variable which will be used to store the ScreenSize as a Vector
@@ -250,12 +250,12 @@ class RigidBody(UIBase):
 		for force in self._Forces:
 			acceleration += force[0]
 			if not (force[1] == Vector2()):
-				angularAcceleration += math.sin(force[0].get_radians_between(force[1])) * force[0].length * force[1].length / self.Mass
+				angularAcceleration += sin(force[0].get_radians_between(force[1])) * force[0].length * force[1].length / self.Mass
 		for impulse in self._Impulses: # Multiply impulses by 2 to negate division by two later. They provide instant accel.
 			acceleration += impulse[0]*2
 			if not (impulse[1] == Vector2()):
-				angularAcceleration += 2 * math.sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length / self.Mass
-		angularAcceleration %= math.pi*2
+				angularAcceleration += 2 * sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length / self.Mass
+		angularAcceleration %= pi*2
 		self._Impulses = []
 		acceleration += Vector2(0, -gravity*2) # Apply gravity as an impulse.
 		return acceleration, angularAcceleration
