@@ -19,6 +19,11 @@ from copy import deepcopy # Copy >> Allows me to deepCopy whole classes (Useful 
 from uuid import uuid1 as UUID # ID Generation
 from math import pi, sin
 
+# >> GLOBALS <<
+
+gravityVector = Vector2(0, gravity)
+dragCoeff = 1-drag
+
 # >> CLASSES <<
 class UIBase: # No Inheritance necessary.
 
@@ -269,8 +274,6 @@ class RigidBody(UIBase):
 		self.Anchored = False
 		self.Mass = 1
 
-		self.AddForce(Vector2(0, -gravity))
-
 	def __str__(self):
 		return f"RigidBody({self.ClassName}) {self.Name}"
 
@@ -296,31 +299,30 @@ class RigidBody(UIBase):
 	def SpriteCenter(self): # Unnecessary with RigidBody
 		return Vector2()
 
-	def AddForce(self, newForce, newForceOrigin=Vector2()):
-		self._Forces.append((newForce, newForceOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
+	def AddForce(self, force, origin=False):
+		self._Forces.append((force, origin-self.AbsolutePosition if origin else Vector2())) # Origin of force determines angular velocity component.
 
-	def AddImpulse(self, newImpulse, newImpulseOrigin=Vector2()):
-		self._Impulses.append((newImpulse, newImpulseOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
+	def AddImpulse(self, impulse, origin=False):
+		self._Impulses.append((impulse, origin-self.AbsolutePosition if origin else Vector2())) # Origin of force determines angular velocity component.
 
 	def HandleForces(self): # TODO: add in drag
 		acceleration = Vector2()
 		angularAcceleration = 0
 		for force in self._Forces:
 			acceleration += force[0]
-			if not (force[1] == Vector2()):
-				angularAcceleration += sin(force[0].get_radians_between(force[1])) * force[0].length * force[1].length / self.Mass
+			if not (force[1].length== 0):
+				angularAcceleration += sin(force[0].get_radians_between(force[1])) * force[0].length * force[1].length
 		for impulse in self._Impulses: # Multiply impulses by 2 to negate division by two later. They provide instant accel.
-			acceleration += impulse[0]*2
-			if not (impulse[1] == Vector2()):
-				angularAcceleration += 2 * sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length / self.Mass
-		angularAcceleration %= pi*2
+			acceleration += impulse[0]
+			if not (impulse[1].length == 0):
+				angularAcceleration += sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length
 		self._Impulses = []
-		return acceleration, angularAcceleration
+		return acceleration/self.Mass + gravityVector, angularAcceleration/self.Mass
 
 	def Update(self, dt): # Delta time parameter. Help from https://en.wikipedia.org/wiki/Verlet_integration
 		if not self.Anchored:
 			newPosition = self.Position + self.Velocity*dt + self.Acceleration*dt*dt*0.5
-			newRotation = self.Rotation + self.AngularVelocity*dt + self.Acceleration*dt*dt*0.5
+			newRotation = self.Rotation + self.AngularVelocity*dt + self.AngularAcceleration*dt*dt*0.5
 			newAcceleration, newAngularAcceleration = self.HandleForces()
 			newVelocity = self.Velocity + (self.Acceleration+newAcceleration)*dt*0.5
 			newAngularVelocity = self.AngularVelocity + (self.AngularAcceleration+newAngularAcceleration)*dt*0.5

@@ -35,9 +35,12 @@ def createModel():
 	game.Size = UDim2(0, screenSize[0], 0, screenSize[1])
 	workspace = UIBase("Workspace")
 	workspace.Name = "Workspace"
+	workspace.Position = UDim2(0,0,0.1,0)
+	workspace.Size = UDim2(1,0,0.9,0)
 	workspace.Parent = game
 	userInterface = UIBase("UserInterface")
 	userInterface.Name = "UserInterface"
+	userInterface.Size = UDim2(1,0,0.1,0)
 	userInterface.Parent = game
 	return game # Constructed tree structure
 
