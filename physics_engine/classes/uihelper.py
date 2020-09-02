@@ -22,6 +22,9 @@ from math import pi, sin
 # >> CLASSES <<
 class UIBase: # No Inheritance necessary.
 
+	__slots__ = ["Name", "Visible", "Colour", "ZIndex", "ID", "ClassName", "_Rotation", "_Parent", "_Position", "_Size", "_Vertices", "_Children"]
+
+
 	def __init__(self, className, parent=None):
 		# >> Class Names
 		if className in classNames:
@@ -43,8 +46,6 @@ class UIBase: # No Inheritance necessary.
 		self._Vertices = [] # List of UDim2 Values for easy manipulation
 		self._Children = []
 
-	__slots__ = ["Name", "Visible", "Colour", "ZIndex", "ID", "ClassName", "_Rotation", "_Parent", "_Position", "_Size", "_Vertices", "_Children"]
-
 	def __del__(self): # Deletion Behaviour
 		if self._Parent:
 			self._Parent._RemoveChild(self)
@@ -53,7 +54,10 @@ class UIBase: # No Inheritance necessary.
 				del(child)
 
 	def __eq__(self, other):
-		return self.ID == other.ID
+		if isinstance(other, UIBase):
+			return self.ID == other.ID
+		else:
+			return False
 
 	def __str__(self):
 		return f"UIBase({self.ClassName}) {self.Name}"
@@ -73,6 +77,14 @@ class UIBase: # No Inheritance necessary.
 				if child.Name == index:
 					return child
 		raise AttributeError(f"{str(self)} has no such attribute {index}")
+	
+	def IsDescendantOfClass(self, className):
+		if self.ClassName == className:
+			return True
+		elif self.Parent:
+			return self.Parent.IsDescendantOfClass(className)
+		else:
+			return False
 
 	def _AddChild(self, newChild):
 		if not newChild in self._Children:
@@ -147,19 +159,20 @@ class UIBase: # No Inheritance necessary.
 			newParent._AddChild(self)
 			while not newParent.FindFirstChildOfID(self.ID):
 				pass
+
 	@property
 	def AbsoluteSize(self):
 		if self.Parent:
 			return self.Size.ToVector2(self.Parent.AbsoluteSize)
 		else:
-			return screenSize
+			return Vector2(screenSize[0], screenSize[1])
 
 	@property
 	def AbsolutePosition(self):
 		if self.Parent:
 			return self.Position.ToVector2(self.Parent.AbsoluteSize) + self.Parent.AbsolutePosition
 		else:
-			return self.Position.ToVector2(screenSize)
+			return self.Position.ToVector2(Vector2(screenSize[0], screenSize[1]))
 
 	@property
 	def SpriteVertices(self):
@@ -178,8 +191,11 @@ class UIBase: # No Inheritance necessary.
 
 	@property
 	def Vertices(self):
-		center = self.SpriteCenter
-		return [(vertex-center).rotatedRadians(self.Rotation) + self.AbsolutePosition for vertex in self.SpriteVertices]
+		if self._Vertices:
+			center = self.SpriteCenter
+			return [(vertex-center).rotatedRadians(self.Rotation) + self.AbsolutePosition for vertex in self.SpriteVertices]
+		else:
+			return []
 	
 	@property
 	def Size(self):
@@ -260,25 +276,23 @@ class RigidBody(UIBase):
 
 	@UIBase.Parent.setter
 	def Parent(self, newParent): # reParenting instances yields. Set attributes before parenting.
-		if newParent!=None and not newParent.IsDescendantOfClass("Workspace"):
+		if newParent!=None and (not newParent.IsDescendantOfClass("Workspace")):
 			raise ValueError(f"{str(newParent)} is not descended from a valid Workspace")
 		if self._Parent:
 			self._Parent._RemoveChild(self)
 		self._Parent = newParent
 		if newParent:
 			newParent._AddChild(self)
-			while not newParent.FindFirstChildOfID(self.ID):
-				pass
 
-	@property # Change this because all rigidbodies will have vertices input as Vector2s
+	@UIBase.Vertices.getter # Change this because all rigidbodies will have vertices input as Vector2s
 	def Vertices(self):
 		return [vertex.rotatedRadians(self.Rotation) + self.AbsolutePosition for vertex in self._Vertices]
 
-	@property
+	@UIBase.SpriteVertices.getter
 	def SpriteVertices(self): # Unnecessary with RigidBody
 		return self._Vertices
 
-	@property
+	@UIBase.SpriteCenter.getter
 	def SpriteCenter(self): # Unnecessary with RigidBody
 		return Vector2()
 

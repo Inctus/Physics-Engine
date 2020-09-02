@@ -12,10 +12,29 @@ import math
 
 from engine.engine_model import createModel,render,createRigidBody,createRigidBodyFromVertices
 
+# >> FUNCTIONS <<
+
 def run():
-	engine = createModel() # Engine.Workspace, Engine.UserInterface
+	# Engine initialisation
+	engine= createModel() # Engine.Workspace, Engine.UserInterface
+
+	# PyGame Initialisation
+	pygame.init()
+	surface = pygame.display.set_mode((engine.AbsoluteSize.x, engine.AbsoluteSize.y))
+	clock = pygame.time.Clock()
+	
 	body = createRigidBody(4, 10)
-	print(body.Vertices)
+	body.Name = "RigidSquare"
 	body.Rotation = math.pi/4
-	print(body.Vertices)
-	render(engine)
+	body.Parent = engine["Workspace"]
+
+	print(engine.Tree)
+
+	while True:
+		render(engine, surface)
+		pygame.display.update()
+		clock.tick(30)
+
+run()
+pygame.display.quit()
+pygame.quit()

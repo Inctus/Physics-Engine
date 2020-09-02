@@ -46,9 +46,9 @@ def render(object, display): # Recursively calls itself to render all object and
 		display.fill(object.Colour)
 	if object.Visible:
 		renderAfter = []
-		for child in object.GetChildren(): # If they are a higher ZIndex, render them before the parent
-			if child.ZIndex > object.ZIndex:
-				Render(child, display) # Pass in display again
+		for child in object.GetChildren(): # If they are a lower or equal ZIndex, render them before the parent
+			if child.ZIndex <= object.ZIndex:
+				render(child, display) # Pass in display again
 			else:
 				renderAfter.append(child) # If they are lower than ZIndex of parent, render them after
 		if object.ClassName == "Polygon": # All rendered classes done!
@@ -71,7 +71,7 @@ def render(object, display): # Recursively calls itself to render all object and
 			)
 		elif object.ClassName == "ImageLabel" or object.ClassName == "ImageButton":
 			object.Draw(display) # Custom render function for these objects
-		(Render(child, display) for child in renderAfter)
+		(render(child, display) for child in renderAfter)
 
 # >> RIGID BODY HELPERS <<  (to speed up rigidbody creation and centralise them)
 
