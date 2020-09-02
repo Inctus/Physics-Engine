@@ -21,3 +21,20 @@ classNames = [
 	"Ellipse", # This is just for UI elements
 	"Polygon", # for all shapes I'll use this
 ]
+
+polygonNames = [
+	"",
+	"Dot",
+	"Line",
+	"Triangle",
+	"Square",
+	"Pentagon",
+	"Hexagon",
+	"Heptagon",
+	"Octagon",
+	"Nonagon",
+	"Decagon",
+	"Hendecagon",
+	"Dodecagon",
+	"Tridecagon"
+]

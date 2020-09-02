@@ -38,8 +38,8 @@ class UIBase: # No Inheritance necessary.
 			self._Rotation = 0 # In radians to simplify calculations
 		# >> Private Attributes
 		self._Parent = parent
-		self._Position = UDim2()
-		self._Size = UDim2()
+		self._Position = UDim2(0,0,0,0)
+		self._Size = UDim2(1,0,1,0)
 		self._Vertices = [] # List of UDim2 Values for easy manipulation
 		self._Children = []
 
@@ -109,12 +109,6 @@ class UIBase: # No Inheritance necessary.
 			subChild = child.Clone()
 			subChild.Parent = clone
 		return clone
-
-	def FindFirstChild(self, name):
-		for child in self._Children:
-			if child.Name == name:
-				return child
-		return False
 
 	def FindFirstChildOfClass(self, className):
 		for child in self._Children:
@@ -226,14 +220,14 @@ class UIBase: # No Inheritance necessary.
 
 	@property
 	def Tree(self):
-		string = str(self.__str__())
+		string = str(self)
 		if self._Children:
 			for idx,child in enumerate(self._Children):
 				string = string +f"\n{idx+1}."+ child._DescendantTree(1)
 		return string
 
 	def _DescendantTree(self, depth=0):
-		string = "".join("\t" for i in range(0, depth)) + str(self.__str__())
+		string = "".join("\t" for i in range(0, depth)) + str(self)
 		if self._Children:
 			for idx,child in enumerate(self._Children):
 				string = string +f"\n{idx+1}."+ child._DescendantTree(depth+1)
@@ -241,7 +235,7 @@ class UIBase: # No Inheritance necessary.
 
 class RigidBody(UIBase):
 
-	__slots__ = ["Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration"]
+	__slots__ = ["Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration", "_Forces", "_Impulses", "Anchored", "Mass"]
 
 	def __init__(self, className="Polygon", parent=None):
 		UIBase.__init__(self, className, parent)
@@ -259,6 +253,8 @@ class RigidBody(UIBase):
 		self.Anchored = False
 		self.Mass = 1
 
+		self.AddForce(Vector2(0, -gravity))
+
 	def __str__(self):
 		return f"RigidBody({self.ClassName}) {self.Name}"
 
@@ -273,6 +269,18 @@ class RigidBody(UIBase):
 			newParent._AddChild(self)
 			while not newParent.FindFirstChildOfID(self.ID):
 				pass
+
+	@property # Change this because all rigidbodies will have vertices input as Vector2s
+	def Vertices(self):
+		return [vertex.rotatedRadians(self.Rotation) + self.AbsolutePosition for vertex in self._Vertices]
+
+	@property
+	def SpriteVertices(self): # Unnecessary with RigidBody
+		return self._Vertices
+
+	@property
+	def SpriteCenter(self): # Unnecessary with RigidBody
+		return Vector2()
 
 	def AddForce(self, newForce, newForceOrigin=Vector2()):
 		self._Forces.append((newForce, newForceOrigin-self.AbsolutePosition)) # Origin of force determines angular velocity component.
@@ -293,7 +301,6 @@ class RigidBody(UIBase):
 				angularAcceleration += 2 * sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length / self.Mass
 		angularAcceleration %= pi*2
 		self._Impulses = []
-		acceleration += Vector2(0, -gravity*2) # Apply gravity as an impulse.
 		return acceleration, angularAcceleration
 
 	def Update(self, dt): # Delta time parameter. Help from https://en.wikipedia.org/wiki/Verlet_integration

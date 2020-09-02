@@ -8,10 +8,11 @@
 
 # >> MODULES <<
 import pygame
+from engine.engine_model import createModel,render,createRigidBody,createRigidBodyFromVertices
+import math
 
-import engine.engine_model
-
-engine = engine.engine_model.CreateModel()
-print(engine.Tree)
-print(engine["Workspace"])
-print(engine.Workspace.Parent.UserInterface.Parent.GetChildren())
+engine = createModel() # Engine.Workspace, Engine.UserInterface
+body = createRigidBody(4, 10)
+print(body.Vertices)
+body.Rotation = math.pi/4
+print(body.Vertices)
