@@ -5,7 +5,7 @@
 # This module will contain various settings allowing them to be changed here easily
 # as opposed to having to search through mutliple files.
 
-gravity = 100 #300 # Acceleration due to gravity. px/s
+gravity = 300 # Acceleration due to gravity. px/s
 drag = 0.001 # Coefficient of Drag %/s
 
 screenSize = (800, 500) # Size of screen
