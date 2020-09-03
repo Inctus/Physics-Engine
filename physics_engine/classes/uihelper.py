@@ -10,14 +10,15 @@
 from pygame import Rect as Rectangle # I like longer variable names
 from pygame import Color as Colour # UK > US
 from pygame import image, Rect
+from pygame import transform
 
 from classes.vector2d import Vector2 # 2D Vector Class from pygame
 from classes.udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
 from shared.settings import gravity,drag,screenSize,classNames # Grab settings like gravity, drag, friction, elasticity
 
-from copy import deepcopy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
+from copy import deepcopy,copy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
-from math import pi, sin
+from math import pi, sin, floor
 
 # >> GLOBALS <<
 
@@ -100,7 +101,7 @@ class UIBase: # No Inheritance necessary.
 			self._Children.remove(oldChild)
 
 	def GetChildren(self):
-		orderedChildren = deepcopy(self._Children)
+		orderedChildren = copy(self._Children)
 		orderedChildren.sort(key=lambda n: n.ZIndex) # Order children by ZIndex for rendering.
 		return orderedChildren
 
@@ -339,16 +340,36 @@ class RigidBody(UIBase):
 
 class Interface(UIBase):
 
-	__slots__ = ["_Image", "Callback"]
+	__slots__ = ["_Image", "Callback", "ConstrainAxes", "DominantAxis"]
 
 	def __init__(self, className, parent=None):
 		UIBase.__init__(self, className, parent)
 
 		self._Image = None
 		self.Callback = None
+		self.ConstrainAxes = False
+		self.DominantAxis = "y"
 
 	def __str__(self):
 		return f"Interface({self.ClassName}) {self.Name}"
+
+	@UIBase.Rectangle.getter
+	def Rectangle(self):
+		if not self.ConstrainAxes:
+			return Rect(
+				self.AbsolutePosition.x, self.AbsolutePosition.y,
+				self.AbsoluteSize.x, self.AbsoluteSize.y
+				)
+		elif self.DominantAxis == "y":
+			return Rect(
+				self.AbsolutePosition.x + (self.AbsoluteSize.x-self.AbsoluteSize.y)/2, self.AbsolutePosition.y,
+				self.AbsoluteSize.y, self.AbsoluteSize.y
+				)
+		else:
+			return Rect(
+				self.AbsolutePosition.x, self.AbsolutePosition.y + (self.AbsoluteSize.y-self.AbsoluteSize.x)/2,
+				self.AbsoluteSize.x, self.AbsoluteSize.x
+				)
 
 	@UIBase.Parent.setter
 	def Parent(self, newParent): # reParenting instances yields. Set attributes before parenting.
@@ -369,7 +390,14 @@ class Interface(UIBase):
 	@Image.setter
 	def Image(self, fileName):
 		if self.ClassName == "ImageLabel" or self.ClassName == "ImageButton":
-			self._Image = image.load(fileName).convert()
+			self._Image = image.load(fileName).convert_alpha()
 
 	def Draw(self, screen):
+		absoluteSize = floor(self.AbsoluteSize)
+		if self.ConstrainAxes:
+			if self.DominantAxis == "y":
+				absoluteSize.x = absoluteSize.y
+			else:
+				absoluteSize.y = absoluteSize.x
+		self._Image = transform.smoothscale(self.Image, (absoluteSize.x, absoluteSize.y))
 		screen.blit(self.Image, self.Rectangle)

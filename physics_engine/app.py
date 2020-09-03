@@ -16,6 +16,7 @@ from math import pi
 from engine.engine_model import createModel,render,createRigidBody,createRigidBodyFromVertices
 from classes.uihelper import Interface,UIBase
 from classes.vector2d import Vector2
+from classes.udim2 import UDim2
 
 # >> FUNCTIONS <<
 
@@ -39,8 +40,17 @@ def run():
 	body.Mass = 50
 
 	interfaceBar = UIBase("Rectangle")
-	interfaceBar.Parent = engine.UserInterface
 	interfaceBar.Colour = Colour(30,30,30)
+	interfaceBar.Parent = engine.UserInterface
+
+	image = Interface("ImageLabel")
+	image.Name = "PlayButton"
+	image.Image = "resources/Play.png"
+	image.Size = UDim2(0.2,0,0.9,0)
+	image.Position = UDim2(0.4,0,0.05,0)
+	image.Parent = engine.UserInterface
+	image.ConstrainAxes = True
+	image.DominantAxis = "y"
 
 	print(engine.Tree)
 

@@ -27,6 +27,11 @@ class Vector2(object):
                 self.x = x_or_pair
                 self.y = y
 
+    def __floor__(self):
+        self.x = math.floor(self.x)
+        self.y = math.floor(self.y)
+        return self
+
     def __len__(self):
         return 2
 
