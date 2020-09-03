@@ -40,16 +40,22 @@ def run():
 	body.Mass = 50
 
 	interfaceBar = UIBase("Rectangle")
+	interfaceBar.Size = UDim2(1,0,0.05,0)
 	interfaceBar.Colour = Colour(30,30,30)
 	interfaceBar.Parent = engine.UserInterface
+
+	clone = interfaceBar.Clone()
+	clone.Position = UDim2(0, 0, 0.95, 0)
+	clone.Parent = engine.UserInterface
 
 	image = Interface("ImageLabel")
 	image.Name = "PlayButton"
 	image.Image = "resources/Play.png"
-	image.Size = UDim2(0.2,0,0.9,0)
-	image.Position = UDim2(0.4,0,0.05,0)
+	image.Size = UDim2(0.2,0,0.8,0)
+	image.Position = UDim2(0.4,0,0.1,0)
 	image.Parent = engine.UserInterface
 	image.ConstrainAxes = True
+	image.ImageColour = Colour(30,30,30)
 	image.DominantAxis = "y"
 
 	print(engine.Tree)

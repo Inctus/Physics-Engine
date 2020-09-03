@@ -10,7 +10,7 @@
 from pygame import Rect as Rectangle # I like longer variable names
 from pygame import Color as Colour # UK > US
 from pygame import image, Rect
-from pygame import transform
+from pygame import transform,PixelArray
 
 from classes.vector2d import Vector2 # 2D Vector Class from pygame
 from classes.udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
@@ -112,18 +112,19 @@ class UIBase: # No Inheritance necessary.
 
 	def Clone(self):
 		# >> Attributes
-		clone = UIObject(self.ClassName)
+		clone = UIBase(self.ClassName)
 		clone.Name = self.Name
 		clone.Visible = True
 		clone.Colour = self.Colour
 		clone.ZIndex = self.ZIndex
-		clone.Rotation = self.Rotation
+		if self.ClassName == "Polygon":
+			clone.Rotation = self.Rotation
 		# >> Private Attributes
 		clone._Position = self.Position
 		clone._Size = self._Size
-		clone._Vertices = deepCopy(self._Vertices)
+		clone._Vertices = deepcopy(self._Vertices)
 		clone._Children = []
-		for child in self.Children:
+		for child in self._Children:
 			subChild = child.Clone()
 			subChild.Parent = clone
 		return clone
@@ -227,7 +228,7 @@ class UIBase: # No Inheritance necessary.
 			)
 
 	@property
-	def Rotation():
+	def Rotation(self):
 		if self.ClassName == "Polygon":
 			return self._Rotation
 		else:
@@ -340,15 +341,18 @@ class RigidBody(UIBase):
 
 class Interface(UIBase):
 
-	__slots__ = ["_Image", "Callback", "ConstrainAxes", "DominantAxis"]
+	__slots__ = ["_Image", "Callback", "_ConstrainAxes", "_DominantAxis", "_InternalImage", "_ImageColour"]
 
 	def __init__(self, className, parent=None):
 		UIBase.__init__(self, className, parent)
 
-		self._Image = None
 		self.Callback = None
-		self.ConstrainAxes = False
-		self.DominantAxis = "y"
+
+		self._Image = None
+		self._ConstrainAxes = False
+		self._DominantAxis = "y"
+		self._InternalImage = None
+		self._ImageColour = Colour(255,255,255)
 
 	def __str__(self):
 		return f"Interface({self.ClassName}) {self.Name}"
@@ -383,6 +387,59 @@ class Interface(UIBase):
 			while not newParent.FindFirstChildOfID(self.ID):
 				pass
 
+	def _UpdateImage(self, completeness):
+		if completeness <= 1:
+			self._InternalImage = image.load(self._Image).convert_alpha()
+		if completeness <= 2:
+			print("resizing", completeness)
+			absoluteSize = floor(self.AbsoluteSize)
+			if self.ConstrainAxes:
+				if self.DominantAxis == "y":
+					absoluteSize.x = absoluteSize.y
+				else:
+					absoluteSize.y = absoluteSize.x
+			self._InternalImage = transform.smoothscale(self._InternalImage, (absoluteSize.x, absoluteSize.y))
+		if completeness <= 3:
+			pixArray = PixelArray(self._InternalImage)
+			pixArray.replace(Colour(255,255,255), self.ImageColour, 0.8)
+
+	@property
+	def DominantAxis(self):
+		return self._DominantAxis
+	
+	@DominantAxis.setter
+	def DominantAxis(self, newValue):
+		self._DominantAxis = newValue
+		self._UpdateImage(2)
+	
+
+	@property
+	def ConstrainAxes(self):
+		return self._ConstrainAxes
+	
+	@ConstrainAxes.setter
+	def ConstrainAxes(self, newValue):
+		self._ConstrainAxes = newValue
+		self._UpdateImage(2)
+
+	@UIBase.Size.getter
+	def Size(self):
+		return self._Size
+
+	@UIBase.Size.setter
+	def Size(self, newSize):
+		self._Size = newSize
+		self._UpdateImage(1)
+
+	@property
+	def ImageColour(self):
+		return self._ImageColour
+	
+	@ImageColour.setter
+	def ImageColour(self, newColour):
+		self._ImageColour = newColour
+		self._UpdateImage(3)
+
 	@property
 	def Image(self):
 		return self._Image
@@ -390,14 +447,8 @@ class Interface(UIBase):
 	@Image.setter
 	def Image(self, fileName):
 		if self.ClassName == "ImageLabel" or self.ClassName == "ImageButton":
-			self._Image = image.load(fileName).convert_alpha()
+			self._Image = fileName
+			self._UpdateImage(1)
 
 	def Draw(self, screen):
-		absoluteSize = floor(self.AbsoluteSize)
-		if self.ConstrainAxes:
-			if self.DominantAxis == "y":
-				absoluteSize.x = absoluteSize.y
-			else:
-				absoluteSize.y = absoluteSize.x
-		self._Image = transform.smoothscale(self.Image, (absoluteSize.x, absoluteSize.y))
-		screen.blit(self.Image, self.Rectangle)
+		screen.blit(self._InternalImage, self.Rectangle)
