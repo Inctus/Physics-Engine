@@ -40,6 +40,7 @@ def run():
 	body.Mass = 50
 
 	interfaceBar = UIBase("Rectangle")
+	interfaceBar.Name = "Border"
 	interfaceBar.Size = UDim2(1,0,0.05,0)
 	interfaceBar.Colour = Colour(30,30,30)
 	interfaceBar.Parent = engine.UserInterface

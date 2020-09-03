@@ -9,8 +9,7 @@
 # >> MODULES << 
 from pygame import Rect as Rectangle # I like longer variable names
 from pygame import Color as Colour # UK > US
-from pygame import image, Rect
-from pygame import transform,PixelArray
+from pygame import image,transform,PixelArray # For image manipulation
 
 from classes.vector2d import Vector2 # 2D Vector Class from pygame
 from classes.udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
@@ -18,7 +17,7 @@ from shared.settings import gravity,drag,screenSize,classNames # Grab settings l
 
 from copy import deepcopy,copy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
-from math import pi, sin, floor
+from math import pi, sin, floor # For rigidbody math
 
 # >> GLOBALS <<
 
@@ -222,7 +221,7 @@ class UIBase: # No Inheritance necessary.
 	
 	@property
 	def Rectangle(self):
-		return Rect(
+		return Rectangle(
 			self.AbsolutePosition.x, self.AbsolutePosition.y,
 			self.AbsoluteSize.x, self.AbsoluteSize.y
 			)
@@ -338,6 +337,36 @@ class RigidBody(UIBase):
 		else:
 			return self.Position
 
+	def Clone(self):
+		# >> Attributes
+		clone = RigidBody(self.ClassName)
+		clone.Name = self.Name
+		clone.Visible = True
+		clone.Colour = self.Colour
+		clone.ZIndex = self.ZIndex
+		if self.ClassName == "Polygon":
+			clone.Rotation = self.Rotation
+		# >> Private Attributes
+		clone._Position = self.Position
+		clone._Size = self._Size
+		clone._Vertices = deepcopy(self._Vertices)
+		clone._Children = []
+		for child in self._Children:
+			subChild = child.Clone()
+			subChild.Parent = clone
+		# RigidBody attributes
+		clone.Position = self.Position
+		clone.Velocity = self.Velocity
+		clone.Acceleration = self.Acceleration
+		clone.Rotation = self.Rotation
+		clone.AngularVelocity = self.AngularVelocity
+		clone.AngularAcceleration = self.AngularAcceleration
+		clone._Forces = self._Forces 
+		clone._Impulses = self._Impulses
+		clone.Anchored = self.Anchored
+		clone.Mass = self.Mass
+		return clone
+
 
 class Interface(UIBase):
 
@@ -360,17 +389,17 @@ class Interface(UIBase):
 	@UIBase.Rectangle.getter
 	def Rectangle(self):
 		if not self.ConstrainAxes:
-			return Rect(
+			return Rectangle(
 				self.AbsolutePosition.x, self.AbsolutePosition.y,
 				self.AbsoluteSize.x, self.AbsoluteSize.y
 				)
 		elif self.DominantAxis == "y":
-			return Rect(
+			return Rectangle(
 				self.AbsolutePosition.x + (self.AbsoluteSize.x-self.AbsoluteSize.y)/2, self.AbsolutePosition.y,
 				self.AbsoluteSize.y, self.AbsoluteSize.y
 				)
 		else:
-			return Rect(
+			return Rectangle(
 				self.AbsolutePosition.x, self.AbsolutePosition.y + (self.AbsoluteSize.y-self.AbsoluteSize.x)/2,
 				self.AbsoluteSize.x, self.AbsoluteSize.x
 				)
@@ -452,3 +481,29 @@ class Interface(UIBase):
 
 	def Draw(self, screen):
 		screen.blit(self._InternalImage, self.Rectangle)
+
+	def Clone(self):
+		# >> Attributes
+		clone = Interface(self.ClassName)
+		clone.Name = self.Name
+		clone.Visible = True
+		clone.Colour = self.Colour
+		clone.ZIndex = self.ZIndex
+		if self.ClassName == "Polygon":
+			clone.Rotation = self.Rotation
+		# >> Private Attributes
+		clone._Position = self.Position
+		clone._Size = self._Size
+		clone._Vertices = deepcopy(self._Vertices)
+		clone._Children = []
+		for child in self._Children:
+			subChild = child.Clone()
+			subChild.Parent = clone
+		# Interface attributes
+		clone.Callback = None
+		clone._Image = self._Image
+		clone._ConstrainAxes = self._ConstrainAxes
+		clone._DominantAxis = self._DominantAxis
+		clone._InternalImage = self._InternalImage
+		clone._ImageColour = self._ImageColour
+		return clone
