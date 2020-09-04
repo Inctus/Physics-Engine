@@ -23,7 +23,7 @@ def isSeparatingAxis(normal, shapeOne, shapeTwo):
 		return False, Vector2()
 	return True, normal * ((maxOne-minTwo) if maxOne>maxTwo else (maxTwo-minOne))
 
-def CheckCollision(shapeOne, shapeTwo):
+def checkCollision(shapeOne, shapeTwo):
 	normals = set(getNormals(shapeOne) + getNormals(shapeTwo))
 	mtvs = []
 	for normal in normals:
@@ -32,4 +32,4 @@ def CheckCollision(shapeOne, shapeTwo):
 			return collided, mtv, axis # Return false because there's a gap and no collision.
 		else:
 			mtvs.append(mtv)
-	return True, mtvs.sort(key=x: x.length)[0] # Return minimum translation vector and trueee
+	return True, mtvs.sort(key=lambda x: x.length)[0] # Return minimum translation vector and trueee
