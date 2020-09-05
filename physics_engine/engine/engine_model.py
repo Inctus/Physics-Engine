@@ -14,6 +14,7 @@ from classes.uihelper import UIBase, RigidBody, Interface
 from shared.settings import screenSize, polygonNames
 
 from pygame import draw
+from pygame import Color as Colour
 from math import pi,sin,cos,floor
 
 # >> UTILITY FUNCTIONS <<
@@ -55,19 +56,24 @@ def render(object, display): # Recursively calls itself to render all object and
 			else:
 				renderAfter.append(child) # If they are lower than ZIndex of parent, render them after
 		if object.ClassName == "Polygon": # All rendered classes done!
-			draw.polygon(
+			rect = draw.polygon(
 				display,
 				object.Colour,
 				object.Vertices
 			)
-		elif object.ClassName == "Rectangle":
 			draw.rect(
-				display,
+				display, 
+				Colour(255,0,0),
+				rect,
+				 1,
+			)
+		elif object.ClassName == "Rectangle":
+			display.fill(
 				object.Colour,
 				object.Rectangle
 			)
 		elif object.ClassName == "Ellipse":
-			draw.rect(
+			draw.ellipse(
 				display,
 				object.Colour,
 				object.Rectangle

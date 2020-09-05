@@ -39,6 +39,7 @@ def run():
 	body.Colour = Colour(30,30,30)
 	body.Position = Vector2(400, 225)
 	body.Mass = 50
+	body.Rotation = pi/3
 
 	boundary = createRigidBodyFromVertices(Vector2(-400, 1), Vector2(400, 1), Vector2(400, 0), Vector2(-400, 0))
 	boundary.Anchored = True
