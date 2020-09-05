@@ -420,7 +420,6 @@ class Interface(UIBase):
 		if completeness <= 1:
 			self._InternalImage = image.load(self._Image).convert_alpha()
 		if completeness <= 2:
-			print("resizing", completeness)
 			absoluteSize = floor(self.AbsoluteSize)
 			if self.ConstrainAxes:
 				if self.DominantAxis == "y":

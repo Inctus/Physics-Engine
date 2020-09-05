@@ -50,7 +50,7 @@ def render(object, display): # Recursively calls itself to render all object and
 	if object.Visible:
 		renderAfter = []
 		for child in object.GetChildren(): # If they are a lower or equal ZIndex, render them before the parent
-			if child.ZIndex <= object.ZIndex:
+			if child.ZIndex >= object.ZIndex:
 				render(child, display) # Pass in display again
 			else:
 				renderAfter.append(child) # If they are lower than ZIndex of parent, render them after
@@ -84,7 +84,7 @@ def createRigidBody(n, size):
 	body.Name = polygonNames[n]
 	return body
 
-def createRigidBodyFromVertices(vertices):
+def createRigidBodyFromVertices(*vertices):
 	body = RigidBody()
-	[body.AddVertex(vertex) for vertex in vertices]
+	body._Vertices = vertices
 	return body

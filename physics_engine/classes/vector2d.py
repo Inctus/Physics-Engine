@@ -55,6 +55,9 @@ class Vector2(object):
     def __repr__(self):
         return 'Vector2(%s, %s)' % (self.x, self.y)
 
+    def __hash__(self):
+        return hash(2**self.x + self.y)
+
     # Comparison
     def __eq__(self, other):
         if hasattr(other, "__getitem__") and len(other) == 2:

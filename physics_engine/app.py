@@ -14,6 +14,7 @@ from pygame import QUIT # ENUMS
 from math import pi
 
 from engine.engine_model import createModel,render,createRigidBody,createRigidBodyFromVertices
+from engine.collision_handler import checkCollision
 from classes.uihelper import Interface,UIBase
 from classes.vector2d import Vector2
 from classes.udim2 import UDim2
@@ -34,10 +35,17 @@ def run():
 	# Object Creation >> moved out of this module
 	body = createRigidBody(8, 100)
 	body.Name = "RigidSquare"
-	body.Parent = engine["Workspace"]
+	body.Parent = engine.Workspace
 	body.Colour = Colour(30,30,30)
 	body.Position = Vector2(400, 225)
 	body.Mass = 50
+
+	boundary = createRigidBodyFromVertices(Vector2(-400, 1), Vector2(400, 1), Vector2(400, 0), Vector2(-400, 0))
+	boundary.Anchored = True
+	boundary.Name = "BottomBoundary"
+	boundary.Colour = Colour(255,0,0)
+	boundary.Position = Vector2(400, engine.Workspace.AbsoluteSize.y-1)
+	boundary.Parent = engine.Workspace
 
 	interfaceBar = UIBase("Rectangle")
 	interfaceBar.Name = "Border"
@@ -71,4 +79,3 @@ def run():
 		clock.tick(30)
 
 run()
-display.quit()
