@@ -7,6 +7,7 @@
 
 gravity = 300 # Acceleration due to gravity. px/s
 drag = 0.001 # Coefficient of Drag %/s
+elasticity = 0.8 # How much of the initial force is retained post collision.
 
 screenSize = (800, 500) # Size of screen
 fullScreen = False # If the simulation should be ran fullscreen. I think not.
@@ -23,7 +24,7 @@ classNames = [
 ]
 
 polygonNames = [
-	"",
+	"?",
 	"Dot",
 	"Line",
 	"Triangle",
