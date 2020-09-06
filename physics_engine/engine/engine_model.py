@@ -11,11 +11,13 @@
 from classes.vector2d import Vector2
 from classes.udim2 import UDim2
 from classes.uihelper import UIBase, RigidBody, Interface
-from shared.settings import screenSize, polygonNames
+from shared.settings import screenSize, polygonNames, gravity, elasticity, friction
+from engine.collision_handler import checkCollisions
 
 from pygame import draw
 from pygame import Color as Colour
 from math import pi,sin,cos,floor
+from time import time
 
 # >> UTILITY FUNCTIONS <<
 
@@ -81,6 +83,29 @@ def render(object, display): # Recursively calls itself to render all object and
 		elif object.ClassName == "ImageLabel" or object.ClassName == "ImageButton":
 			object.Draw(display) # Custom render function for these objects
 		(render(child, display) for child in renderAfter)
+
+def updatePhysics(Workspace, dt):
+	descendants = Workspace.GetDescendants()
+	for descendant in descendants:
+		descendant.Update(dt)
+	collisions = checkCollisions([descendant.Vertices for descendant in descendants], [descendant.Position for descendant in descendants])
+	for collision in collisions:
+		shapeOne, shapeTwo, mtv, vertex = collision
+		bodyOne, bodyTwo = descendants[shapeOne], descendants[shapeTwo]
+		relativeVelocity = (bodyTwo.Velocity-bodyOne.Velocity).dot(mtv)
+		relativeGravity = Vector2(0,gravity).projection(mtv)
+		if relativeVelocity > 0:
+			continue
+		impulse = -(elasticity)*relativeVelocity * bodyOne.Mass * bodyTwo.Mass
+		if not bodyOne.Anchored or bodyOne.SafeAnchored:
+			bodyOne.Position = bodyOne.Position - mtv
+			bodyOne.Velocity = bodyOne.Velocity * 1-friction
+		if not bodyTwo.Anchored or bodyTwo.SafeAnchored:
+			bodyTwo.Position = bodyTwo.Position + mtv
+			bodyTwo.Velocity = bodyOne.Velocity * 1-friction*friction
+		mtv = mtv.normalized()
+		bodyOne.AddImpulse(-mtv * impulse * relativeGravity)#, vertex)
+		bodyTwo.AddImpulse(mtv * impulse * -relativeGravity)#, vertex)
 
 # >> RIGID BODY HELPERS <<  (to speed up rigidbody creation and centralise them)
 

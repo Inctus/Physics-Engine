@@ -13,7 +13,7 @@ from pygame import image,transform,PixelArray # For image manipulation
 
 from classes.vector2d import Vector2 # 2D Vector Class from pygame
 from classes.udim2 import UDim2 # UDim2 >> Allows me to quickly position UI elements using a mixture of % and px
-from shared.settings import gravity,drag,screenSize,classNames # Grab settings like gravity, drag, friction, elasticity
+from shared.settings import gravity,drag,screenSize,classNames,slop,angularSlop # Grab settings like gravity, drag, friction, elasticity
 
 from copy import deepcopy,copy # Copy >> Allows me to deepCopy whole classes (Useful for Cloning)
 from uuid import uuid1 as UUID # ID Generation
@@ -103,6 +103,13 @@ class UIBase: # No Inheritance necessary.
 		orderedChildren = copy(self._Children)
 		orderedChildren.sort(key=lambda n: n.ZIndex) # Order children by ZIndex for rendering.
 		return orderedChildren
+
+	def GetDescendants(self):
+		descendantList = self.GetChildren()
+		for i in range(len(descendantList)):
+			for subChild in descendantList[i].GetDescendants():
+				descendantList.append(subChild)
+		return descendantList
 
 	def RemoveChildren(self):
 		if self._Children:
@@ -257,7 +264,7 @@ class UIBase: # No Inheritance necessary.
 
 class RigidBody(UIBase):
 
-	__slots__ = ["Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration", "_Forces", "_Impulses", "Anchored", "Mass"]
+	__slots__ = ["Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration", "_Forces", "_Impulses", "Anchored", "Mass", "SafeAnchored"]
 
 	def __init__(self, className="Polygon", parent=None):
 		UIBase.__init__(self, className, parent)
@@ -267,11 +274,12 @@ class RigidBody(UIBase):
 		self.Acceleration = Vector2()
 		self.Rotation = 0
 		self.AngularVelocity = 0 
-		self.AngularAcceleration = 0 
-		
+		self.AngularAcceleration = 0
+
 		self._Forces = [] # Forces with a force and an origin (origins are local)
 		self._Impulses = [] # Forces with a duration of 1 frame.
 
+		self.SafeAnchored = False
 		self.Anchored = False
 		self.Mass = 1
 
@@ -301,9 +309,13 @@ class RigidBody(UIBase):
 		return Vector2()
 
 	def AddForce(self, force, origin=False):
+		if self.SafeAnchored:
+			self.SafeAnchored = False
 		self._Forces.append((force, origin-self.AbsolutePosition if origin else Vector2())) # Origin of force determines angular velocity component.
 
 	def AddImpulse(self, impulse, origin=False):
+		if self.SafeAnchored:
+			self.SafeAnchored = False
 		self._Impulses.append((impulse, origin-self.AbsolutePosition if origin else Vector2())) # Origin of force determines angular velocity component.
 
 	def HandleForces(self): # TODO: add in drag
@@ -313,22 +325,24 @@ class RigidBody(UIBase):
 			acceleration += force[0]
 			if not (force[1].length== 0):
 				angularAcceleration += sin(force[0].get_radians_between(force[1])) * force[0].length * force[1].length
-		for impulse in self._Impulses: # Multiply impulses by 2 to negate division by two later. They provide instant accel.
-			acceleration += impulse[0]
+		for impulse in self._Impulses:
+			acceleration += impulse[0] * 2
 			if not (impulse[1].length == 0):
-				angularAcceleration += sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length
+				angularAcceleration += sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length * 2
 		self._Impulses = []
 		return acceleration/self.Mass + gravityVector, angularAcceleration/self.Mass
 
 	def Update(self, dt): # Delta time parameter. Help from https://en.wikipedia.org/wiki/Verlet_integration
-		if not self.Anchored:
+		if not self.Anchored and not self.SafeAnchored:
 			newPosition = self.Position + self.Velocity*dt + self.Acceleration*dt*dt*0.5
 			newRotation = self.Rotation + self.AngularVelocity*dt + self.AngularAcceleration*dt*dt*0.5
 			newAcceleration, newAngularAcceleration = self.HandleForces()
-			newVelocity = self.Velocity + (self.Acceleration+newAcceleration)*dt*0.5
+			newVelocity = self.Velocity*(1-drag) + (self.Acceleration+newAcceleration)*dt*0.5
 			newAngularVelocity = self.AngularVelocity + (self.AngularAcceleration+newAngularAcceleration)*dt*0.5
 			self.Position, self.Velocity, self.Acceleration = newPosition, newVelocity, newAcceleration
 			self.Rotation, self.AngularVelocity, self.AngularAcceleration = newRotation, newAngularVelocity, newAngularAcceleration
+			if self.Velocity.length <= slop and self.AngularVelocity.length <= angularSlop:
+				self.SafeAnchored = True # Stop unnecessary sinkage or gliding
 
 	@property # Polymorphism to conform with Vector2
 	def AbsolutePosition(self):

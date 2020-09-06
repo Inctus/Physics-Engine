@@ -13,11 +13,13 @@ from pygame import QUIT # ENUMS
 
 from math import pi
 
-from engine.engine_model import createModel,render,createRigidBody,createRigidBodyFromVertices
-from engine.collision_handler import checkCollision
+from engine.engine_model import createModel,render,createRigidBody,createRigidBodyFromVertices,updatePhysics
+from engine.collision_handler import checkCollisions
 from classes.uihelper import Interface,UIBase
 from classes.vector2d import Vector2
 from classes.udim2 import UDim2
+
+from shared.settings import framerate
 
 # >> FUNCTIONS <<
 
@@ -33,20 +35,27 @@ def run():
 	clock = time.Clock()
 
 	# Object Creation >> moved out of this module
-	body = createRigidBody(8, 100)
+	body = createRigidBody(4, 50)
 	body.Name = "RigidSquare"
-	body.Parent = engine.Workspace
 	body.Colour = Colour(30,30,30)
-	body.Position = Vector2(400, 225)
-	body.Mass = 50
-	body.Rotation = pi/3
+	body.Position = Vector2(200, 225)
+	body.Mass = 20
+	body.AddForce(Vector2(500,0))
+	body.Parent = engine.Workspace
 
-	boundary = createRigidBodyFromVertices(Vector2(-400, 1), Vector2(400, 1), Vector2(400, 0), Vector2(-400, 0))
+	boundary = createRigidBodyFromVertices(Vector2(-400, 100), Vector2(400, 100), Vector2(400, -100), Vector2(-400, -100))
 	boundary.Anchored = True
 	boundary.Name = "BottomBoundary"
 	boundary.Colour = Colour(255,0,0)
-	boundary.Position = Vector2(400, engine.Workspace.AbsoluteSize.y-1)
+	boundary.Position = Vector2(400, engine.Workspace.AbsoluteSize.y+99)
 	boundary.Parent = engine.Workspace
+
+	boundaryTwo = createRigidBodyFromVertices(Vector2(-10, 200), Vector2(-10, 200), Vector2(10, -200), Vector2(10, -200))
+	boundaryTwo.Anchored = True
+	boundaryTwo.Name = "RightBoundary"
+	boundaryTwo.Colour = Colour(255,0,0)
+	boundaryTwo.Position = Vector2(808, 100)
+	#boundary.Parent = engine.Workspace
 
 	interfaceBar = UIBase("Rectangle")
 	interfaceBar.Name = "Border"
@@ -74,9 +83,9 @@ def run():
 		for eventInstance in event.get():
 			if eventInstance.type == QUIT:
 				return
-		body.Update(1/30)
+		updatePhysics(engine.Workspace, 1/framerate)
 		render(engine, surface)
 		display.update(engine.Workspace.Rectangle) # Use update RECT to specify WORKSPACE to render WORKSPACE for EFFICIENCY
-		clock.tick(30)
+		clock.tick_busy_loop(framerate)
 
 run()

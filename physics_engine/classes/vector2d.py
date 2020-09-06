@@ -109,7 +109,9 @@ class Vector2(object):
     # Addition
     def __add__(self, other):
         if isinstance(other, Vector2):
-            return Vector2(self.x + other.x, self.y + other.y)
+            if isinstance(other.x, float) or isinstance(other.x, int):
+                return Vector2(self.x + other.x, self.y + other.y)
+            raise ValueError(f"Wrong input type? {other.x}")
         elif hasattr(other, "__getitem__"):
             return Vector2(self.x + other[0], self.y + other[1])
         else:
