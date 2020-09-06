@@ -61,7 +61,7 @@ def areShapesColliding(shapeOne, shapeTwo):
 		velocityAlongNormal = normal.dot(relativeVelocity)
 		if velocityAlongNormal > 0: # If the shapes are already separating themselves
 			continue # Skip to next iteration
-		collision, depth, mtv, vertex = isSeparatingAxis(normals, shapeOne.Vertices, shapeTwo.Vertices)
+		collision, depth, mtv, vertex = isSeparatingAxis(normals, verticesOne, verticesTwo)
 		if not collision:
 			return collision, mtv, vertex # Return empty stuff
 		mtvs.append((depth, mtv, vertex))
