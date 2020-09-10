@@ -264,7 +264,7 @@ class UIBase: # No Inheritance necessary.
 
 class RigidBody(UIBase):
 
-	__slots__ = ["Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration", "_Forces", "_Impulses", "Anchored", "Mass", "SafeAnchored"]
+	__slots__ = ["_BoundingRectangle", "Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration", "_Forces", "_Impulses", "Anchored", "Mass", "SafeAnchored"]
 
 	def __init__(self, className="Polygon", parent=None):
 		UIBase.__init__(self, className, parent)
@@ -278,6 +278,7 @@ class RigidBody(UIBase):
 
 		self._Forces = [] # Forces with a force and an origin (origins are local)
 		self._Impulses = [] # Forces with a duration of 1 frame.
+		self._BoundingRectangle = None
 
 		self.SafeAnchored = False
 		self.Anchored = False
@@ -321,27 +322,31 @@ class RigidBody(UIBase):
 	def HandleForces(self): # TODO: add in drag
 		acceleration = Vector2()
 		angularAcceleration = 0
+		impulseAcceleration = Vector2()
+		impulseAngularAcceleration = 0
 		for force in self._Forces:
+			vector, origin = force
 			acceleration += force[0]
 			if not (force[1].length== 0):
-				angularAcceleration += sin(force[0].get_radians_between(force[1])) * force[0].length * force[1].length
+				angularAcceleration += sin(vector.get_radians_between(origin)) * vector.length * origin.length
 		for impulse in self._Impulses:
-			acceleration += impulse[0] * 2
+			vector, origin = impulse
+			impulseAcceleration += impulse[0]
 			if not (impulse[1].length == 0):
-				angularAcceleration += sin(impulse[0].get_radians_between(impulse[1])) * impulse[0].length * impulse[1].length * 2
+				impulseAngularAcceleration += sin(vector.get_radians_between(origin)) * vector.length * origin.length
 		self._Impulses = []
-		return acceleration/self.Mass + gravityVector, angularAcceleration/self.Mass
+		return acceleration/self.Mass + gravityVector, angularAcceleration/self.Mass, impulseAcceleration, impulseAngularAcceleration
 
 	def Update(self, dt): # Delta time parameter. Help from https://en.wikipedia.org/wiki/Verlet_integration
 		if not self.Anchored and not self.SafeAnchored:
 			newPosition = self.Position + self.Velocity*dt + self.Acceleration*dt*dt*0.5
 			newRotation = self.Rotation + self.AngularVelocity*dt + self.AngularAcceleration*dt*dt*0.5
-			newAcceleration, newAngularAcceleration = self.HandleForces()
-			newVelocity = self.Velocity*(1-drag) + (self.Acceleration+newAcceleration)*dt*0.5
-			newAngularVelocity = self.AngularVelocity + (self.AngularAcceleration+newAngularAcceleration)*dt*0.5
+			newAcceleration, newAngularAcceleration, impulseAcceleration, impulseAngularAcceleration = self.HandleForces()
+			newVelocity = self.Velocity*(1-drag) + (self.Acceleration+newAcceleration)*dt*0.5 + impulseAcceleration*0.5
+			newAngularVelocity = self.AngularVelocity + (self.AngularAcceleration+newAngularAcceleration)*dt*0.5 + impulseAngularAcceleration*0.5
 			self.Position, self.Velocity, self.Acceleration = newPosition, newVelocity, newAcceleration
 			self.Rotation, self.AngularVelocity, self.AngularAcceleration = newRotation, newAngularVelocity, newAngularAcceleration
-			if self.Velocity.length <= slop and self.AngularVelocity.length <= angularSlop:
+			if self.Velocity.length <= slop and self.AngularVelocity <= angularSlop:
 				self.SafeAnchored = True # Stop unnecessary sinkage or gliding
 
 	@property # Polymorphism to conform with Vector2
@@ -375,9 +380,10 @@ class RigidBody(UIBase):
 		clone.Rotation = self.Rotation
 		clone.AngularVelocity = self.AngularVelocity
 		clone.AngularAcceleration = self.AngularAcceleration
-		clone._Forces = self._Forces 
-		clone._Impulses = self._Impulses
+		clone._Forces = deepcopy(self._Forces)
+		clone._Impulses = deepcopy(self._Impulses)
 		clone.Anchored = self.Anchored
+		clone.SafeAnchored = self.SafeAnchored
 		clone.Mass = self.Mass
 		return clone
 

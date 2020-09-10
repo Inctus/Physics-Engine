@@ -7,13 +7,13 @@
 
 gravity = 500 # Acceleration due to gravity. px/s
 drag = 0.01 # Coefficient of Drag %/s
-elasticity = 0.01 # How much of the initial force is retained post collision.
+elasticity = 1 # How much of the initial force is retained post collision.
 friction = 0.5
 
-slop = 2
-angularSlop = 0.005
+slop = 1
+angularSlop = 0.01
 
-framerate = 45 # How fast the simulation goes
+framerate = 30 # How fast the simulation goes
 
 screenSize = (800, 500) # Size of screen
 fullScreen = False # If the simulation should be ran fullscreen. I think not.

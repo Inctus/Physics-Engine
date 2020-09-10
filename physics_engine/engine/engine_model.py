@@ -11,7 +11,7 @@
 from classes.vector2d import Vector2
 from classes.udim2 import UDim2
 from classes.uihelper import UIBase, RigidBody, Interface
-from shared.settings import screenSize, polygonNames, gravity, elasticity, friction
+from shared.settings import screenSize, polygonNames, gravity, friction, elasticity
 from engine.collision_handler import checkCollisions
 
 from pygame import draw
@@ -63,6 +63,7 @@ def render(object, display): # Recursively calls itself to render all object and
 				object.Colour,
 				object.Vertices
 			)
+			object._BoundingRectangle = rect
 			draw.rect(
 				display, 
 				Colour(255,0,0),
@@ -88,15 +89,28 @@ def updatePhysics(Workspace, dt):
 	descendants = Workspace.GetDescendants()
 	for descendant in descendants:
 		descendant.Update(dt)
-	collisions = checkCollisions([descendant.Vertices for descendant in descendants], [descendant.Position for descendant in descendants])
+	collisions = checkCollisions(descendants)
 	for collision in collisions:
+		dominant, inferior, mtv, collisionPoint, impulse = collision
+		ratio = 1#dominant.Mass / (dominant.Mass+inferior.Mass)
+		if not dominant.Anchored or dominant.SafeAnchored:
+			#print(f"{dominant.Name} is colliding with {inferior.Name}. Impulse{-mtv*ratio*impulse}. MTV{mtv}")
+			dominant.Position -= mtv * ratio
+			dominant.Velocity -= impulse * mtv.normalized()
+		if not inferior.Anchored or inferior.SafeAnchored:
+			inferior.Velocity += impulse * mtv.normalized()
+			inferior.Position -= mtv * (1-ratio)
+
+		# NEED TO ADD IMPULSES IN THE SAME WAY VIA THE RIGID BODY
+			#inferior.AddImpulse(mtv*(1-ratio)*impulse)
+'''
 		shapeOne, shapeTwo, mtv, vertex = collision
 		bodyOne, bodyTwo = descendants[shapeOne], descendants[shapeTwo]
 		relativeVelocity = (bodyTwo.Velocity-bodyOne.Velocity).dot(mtv)
 		relativeGravity = Vector2(0,gravity).projection(mtv)
 		if relativeVelocity > 0:
 			continue
-		impulse = -(elasticity)*relativeVelocity * bodyOne.Mass * bodyTwo.Mass
+
 		if not bodyOne.Anchored or bodyOne.SafeAnchored:
 			bodyOne.Position = bodyOne.Position - mtv
 			bodyOne.Velocity = bodyOne.Velocity * 1-friction
@@ -106,7 +120,7 @@ def updatePhysics(Workspace, dt):
 		mtv = mtv.normalized()
 		bodyOne.AddImpulse(-mtv * impulse * relativeGravity)#, vertex)
 		bodyTwo.AddImpulse(mtv * impulse * -relativeGravity)#, vertex)
-
+'''
 # >> RIGID BODY HELPERS <<  (to speed up rigidbody creation and centralise them)
 
 def createRigidBody(n, size):
