@@ -264,7 +264,7 @@ class UIBase: # No Inheritance necessary.
 
 class RigidBody(UIBase):
 
-	__slots__ = ["_BoundingRectangle", "Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration", "_Forces", "_Impulses", "Anchored", "Mass", "SafeAnchored"]
+	__slots__ = ["Position", "Velocity", "Acceleration", "Rotation", "AngularVelocity", "AngularAcceleration", "_Forces", "_Impulses", "Anchored", "Mass", "SafeAnchored"]
 
 	def __init__(self, className="Polygon", parent=None):
 		UIBase.__init__(self, className, parent)
@@ -278,7 +278,6 @@ class RigidBody(UIBase):
 
 		self._Forces = [] # Forces with a force and an origin (origins are local)
 		self._Impulses = [] # Forces with a duration of 1 frame.
-		self._BoundingRectangle = None
 
 		self.SafeAnchored = False
 		self.Anchored = False
@@ -346,8 +345,6 @@ class RigidBody(UIBase):
 			newAngularVelocity = self.AngularVelocity + (self.AngularAcceleration+newAngularAcceleration)*dt*0.5 + impulseAngularAcceleration*0.5
 			self.Position, self.Velocity, self.Acceleration = newPosition, newVelocity, newAcceleration
 			self.Rotation, self.AngularVelocity, self.AngularAcceleration = newRotation, newAngularVelocity, newAngularAcceleration
-			if self.Velocity.length <= slop and self.AngularVelocity <= angularSlop:
-				self.SafeAnchored = True # Stop unnecessary sinkage or gliding
 
 	@property # Polymorphism to conform with Vector2
 	def AbsolutePosition(self):

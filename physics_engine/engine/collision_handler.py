@@ -18,7 +18,7 @@ def getNormalsFromVertices(vertices):
 	return normals # Return normals in case we need them. Remove duplicates for efficiency later
 
 def projectVerticesOntoNormal(vertices, normal):
-	return [(normal.dot(vertex), vertex) for vertex in vertices] # Keep a link between vertices and their projection
+	return [(math.floor(normal.dot(vertex)), vertex) for vertex in vertices] # Keep a link between vertices and their projection
 	# So that I can find the deepest vertex easily.
 
 def getMaxAndMinVertices(projections): # Projections has list of tuples [ (float projection, Vec2 vertex) ]
@@ -86,69 +86,3 @@ def checkCollisions(shapes):
 		if collision:
 			collisions.append((pair[0], pair[1], mtv, collisionPoint, impulse))
 	return collisions
-
-''' OLD COLLISIONS WERE GLITCHY SO REDOING THEM FROM THE GROUND UP.
-
-def getNormals(vertices):
-	numVertices = len(vertices)
-	return [(vertices[(i+1)%numVertices] - vertices[i]).perpendicular_normal() for i in range(numVertices)]
-
-def projected(normal, vertices):
-	return [normal.dot(vertex) for vertex in vertices]
-
-def minMaxProjections(normal, vertices):
-	project = projected(normal, vertices)
-	return max(project), min(project), project
-
-def collided(normal, shapeOne, shapeTwo):
-	maxOne, minOne, p1 = minMaxProjections(normal, shapeOne) 
-	maxTwo, minTwo, p2 = minMaxProjections(normal, shapeTwo)
-	if (minTwo > maxOne) or (maxTwo < minOne):
-		return False, Vector2()
-	return True, normal * ((maxOne-minTwo) if maxOne>maxTwo else (maxTwo-minOne))
-
-def checkCollision(shapeOne, shapeTwo, centerOne, centerTwo):
-	normals = set(getNormals(shapeOne) + getNormals(shapeTwo))
-	centerDifference = centerOne-centerTwo
-	deltaProjection = lambda y: (centerDifference).projection(y)
-	multiplier = lambda x: -x + deltaProjection(x)*2 if ((centerDifference).dot(x) > 0) else x - deltaProjection(x)*2
-	mtvs = []
-	for normal in normals:
-		hasCollided, mtv = collided(normal, shapeOne, shapeTwo)
-		if not hasCollided:
-			return hasCollided, mtv, Vector2() # Return false because there's a gap and no collision.
-		else:
-			mtvs.append(multiplier(mtv))
-	mtvs.sort(key=lambda x: x.length)
-	return True, mtvs[0], centerOne + centerDifference/2 # Return minimum translation vector and trueee
-
-def broadScaleCollisions(shapes):
-	projections = []
-	possibilities = []
-	for shape in shapes:
-		ys = [vertex.y for vertex in shape] # Use y axis to detect collisions because gravity means most things are *falling down*
-		projections.append((min(ys), max(ys))) # So it makes sense to check y axis for collisions, to avoid unnecessary ones.
-	projections.sort(key=lambda x: x[0])
-	for i in range(len(projections)):
-		bottomOfLower = projections[i][1]
-		for j in range(i+1, len(projections)):
-			if bottomOfLower >= projections[j][0]:
-				possibilities.append((i, j))
-	return possibilities
-
-def filterCollisions(shapes, possibilities, centers):
-	confirmed = []
-	for possibility in possibilities:
-		shapeOne, shapeTwo = possibility
-		result, mtv, vertex = checkCollision(shapes[shapeOne], shapes[shapeTwo], centers[shapeOne], centers[shapeTwo])
-		if result:
-			confirmed.append((shapeOne, shapeTwo, mtv, vertex))
-	return confirmed
-
-def checkCollisions(shapes, centers):
-	possibilities = broadScaleCollisions(shapes)
-	if possibilities:
-		print(len(possibilities))
-	filtered = filterCollisions(shapes, possibilities, centers) 
-	return filtered
-'''

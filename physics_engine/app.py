@@ -1,4 +1,4 @@
-# >> CREDITS << 
+ # >> CREDITS << 
 # Main.py written by Haashim Hussain 
 
 # >> DESCRIPTION <<
@@ -31,47 +31,59 @@ def run():
 	# PyGame Initialisation >> stays in this module
 	init()
 	surface = display.set_mode((engine.AbsoluteSize.x, engine.AbsoluteSize.y))
-	display.set_caption("Phsics Engine - Haashim Hussain")
+	display.set_caption("Physics Engine - Haashim Hussain")
 	clock = time.Clock()
 
 	# Object Creation >> moved out of this module
-	body = createRigidBody(5, 50)
+	body = createRigidBody(5, 100)
 	body.Name = "BodyOne"
-	body.Colour = Colour(30,30,30)
-	body.Position = Vector2(450, 225)
+	body.Colour = Colour(150,30,30)
+	body.Position = Vector2(600, 225)
 	body.AddImpulse(Vector2(0, -500))
 	body.Mass = 100
 	body.Parent = engine.Workspace
-	body.Rotation = pi/3
 
 	bodyTwo = body.Clone()
 	bodyTwo.Name = "BodyTwo"
-	bodyTwo.Position = Vector2(300, 150)
+	bodyTwo.Position = Vector2(140, 150)
+	bodyTwo.Colour = Colour(200,100,100)
 	bodyTwo._Impulses = []
 	bodyTwo.Mass = 500
-	bodyTwo.AddForce(Vector2(100*bodyTwo.Mass,-0))
+	bodyTwo.AddImpulse(Vector2(500,-300))
 	bodyTwo.Parent = engine.Workspace
 
-	boundary = createRigidBodyFromVertices(Vector2(-400, 100), Vector2(400, 100), Vector2(400, -100), Vector2(-400, -100))
-	boundary.Anchored = True
-	boundary.Name = "BottomBoundary"
-	boundary.Colour = Colour(255,0,0)
-	boundary.Position = Vector2(engine.Workspace.AbsoluteSize.x/2, engine.Workspace.AbsoluteSize.y+99)
-	boundary.Parent = engine.Workspace
-	boundary.Mass = 0
+	bottomBoundary = createRigidBodyFromVertices(Vector2(-400, 100), Vector2(400, 100), Vector2(400, -100), Vector2(-400, -100))
+	bottomBoundary.Anchored = True
+	bottomBoundary.Name = "BottomBoundary"
+	bottomBoundary.Colour = Colour(200,200,200)
+	bottomBoundary.Position = Vector2(engine.Workspace.AbsoluteSize.x/2, engine.Workspace.AbsoluteSize.y+99)
+	bottomBoundary.Parent = engine.Workspace
+	bottomBoundary.Mass = 0
 
-	boundaryTwo = createRigidBodyFromVertices(Vector2(-100, 225), Vector2(100, 225), Vector2(100, -225), Vector2(-100, -225))
-	boundaryTwo.Anchored = True
-	boundaryTwo.Name = "RightBoundary"
-	boundaryTwo.Colour = Colour(255,0,0)
-	boundaryTwo.Position = Vector2(engine.Workspace.AbsoluteSize.x + 99, engine.Workspace.AbsoluteSize.y/2)
-	boundaryTwo.Parent = engine.Workspace
+	topBoundary = bottomBoundary.Clone()
+	topBoundary.Position = Vector2(engine.Workspace.AbsoluteSize.x/2, -101)
+	topBoundary.Name = "TopBoundary"
+	topBoundary.Parent = engine.Workspace
+
+	rightBoundary = createRigidBodyFromVertices(Vector2(-100, 225), Vector2(100, 225), Vector2(100, -225), Vector2(-100, -225))
+	rightBoundary.Anchored = True
+	rightBoundary.Name = "RightBoundary"
+	rightBoundary.Colour = Colour(200,200,200)
+	rightBoundary.Position = Vector2(engine.Workspace.AbsoluteSize.x + 99, engine.Workspace.AbsoluteSize.y/2)
+	rightBoundary.Parent = engine.Workspace
+
+	leftBoundary = rightBoundary.Clone()
+	leftBoundary.Anchored = True
+	leftBoundary.Name = "LeftBoundary"
+	leftBoundary.Position = Vector2(-100, engine.Workspace.AbsoluteSize.y/2)
+	leftBoundary.Parent = engine.Workspace
 
 	interfaceBar = UIBase("Rectangle")
 	interfaceBar.Name = "Border"
 	interfaceBar.Size = UDim2(1,0,0.05,0)
-	interfaceBar.Colour = Colour(30,30,30)
+	interfaceBar.Colour = Colour(100,100,100)
 	interfaceBar.Parent = engine.UserInterface
+	interfaceBar.ZIndex = 5
 
 	clone = interfaceBar.Clone()
 	clone.Position = UDim2(0, 0, 0.95, 0)
@@ -84,8 +96,9 @@ def run():
 	image.Position = UDim2(0.4,0,0.1,0)
 	image.Parent = engine.UserInterface
 	image.ConstrainAxes = True
-	image.ImageColour = Colour(30,30,30)
+	image.ImageColour = Colour(100,100,100)
 	image.DominantAxis = "y"
+	image.ZIndex = 5
 
 	print(engine.Tree)
 	render(engine, surface)
@@ -98,7 +111,6 @@ def run():
 			if eventInstance.type == QUIT:
 				return
 		updatePhysics(engine.Workspace, 1/framerate)
-		print(body.Velocity)
 		render(engine, surface)
 		display.update(engine.Workspace.Rectangle) # Use update RECT to specify WORKSPACE to render WORKSPACE for EFFICIENCY
 		clock.tick_busy_loop(framerate)

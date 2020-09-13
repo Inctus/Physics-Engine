@@ -5,10 +5,10 @@
 # This module will contain various settings allowing them to be changed here easily
 # as opposed to having to search through mutliple files.
 
-gravity = 500 # Acceleration due to gravity. px/s
+gravity = 300 # Acceleration due to gravity. px/s
 drag = 0.01 # Coefficient of Drag %/s
-elasticity = 1 # How much of the initial force is retained post collision.
-friction = 0.5
+elasticity = 0.5 # How much of the initial force is retained post collision.
+friction = 0.6
 
 slop = 1
 angularSlop = 0.01
