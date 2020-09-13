@@ -36,6 +36,7 @@ def run():
 
 	# Object Creation >> moved out of this module
 	body = createRigidBody(5, 100)
+	body.Rotation = pi/2
 	body.Name = "BodyOne"
 	body.Colour = Colour(150,30,30)
 	body.Position = Vector2(600, 225)

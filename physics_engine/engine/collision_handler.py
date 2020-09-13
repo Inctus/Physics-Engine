@@ -18,7 +18,7 @@ def getNormalsFromVertices(vertices):
 	return normals # Return normals in case we need them. Remove duplicates for efficiency later
 
 def projectVerticesOntoNormal(vertices, normal):
-	return [(math.floor(normal.dot(vertex)), vertex) for vertex in vertices] # Keep a link between vertices and their projection
+	return [(normal.dot(vertex), vertex) for vertex in vertices] # Keep a link between vertices and their projection
 	# So that I can find the deepest vertex easily.
 
 def getMaxAndMinVertices(projections): # Projections has list of tuples [ (float projection, Vec2 vertex) ]
