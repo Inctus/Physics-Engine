@@ -55,4 +55,4 @@ This is my OCR A Level Cousework. It is a simple, lightweight 2D physics solver 
     
     h. "Mass"⭢ An optional attribute that affects collisions.
 ### Timeline
-The majority of the project will be completed within a week.
+Redoing the SAT and polygon clipping for the third time while working around UCAS.
