@@ -80,21 +80,39 @@ after mtv normal and depth are obtained, get contact manifold by:
 
 # >> UTILITY FUNCTIONS <<
 
-def getNormalsFromVertices(vertexList):
-	n = len(vertexList)
-	return [(vertexList[(i+1)%n] - vertexList[i]).perpendicular_normal() for i in range(n)] # Returns normals for each edge.
+def getNormalsFromVertices(vertices):
+	n = len(vertices)
+	return [(vertices[(i+1)%n] - vertices[i]).perpendicular_normal() for i in range(n)] # Returns normals for each edge.
 
-def projectVerticesOntoNormal(vertexList, normal, sortFunction=False):
+def projectVerticesOntoNormal(vertices, normal, sortFunction=False):
 	if sortFunction:
-		return sortFunction([(i, normal.dot(vertex)) for i,vertex in enumerate(vertexList)], key=lambda x: x[1]) # Returns (index, projection, vertex) for each vertex.
+		return sortFunction([(i, normal.dot(vertex)) for i,vertex in enumerate(vertices)], key=lambda x: x[1]) # Returns (index, projection, vertex) for each vertex.
 	else:
-		return [(i, normal.dot(vertex)) for i,vertex in enumerate(vertexList)]
+		return [(i, normal.dot(vertex)) for i,vertex in enumerate(vertices)]
+
+# >> SEPARATING AXIS THEOREM <<
 
 def isSeparatingAxis(normal, verticesA, verticesB):
 	maxA = projectVerticesOntoNormal(verticesA, normal, max)
 	minB = projectVerticesOntoNormal(verticesB, normal, min)
 	if maxA[1] <= minB[1]:
 		return False, Vector2(), 0, 0, 0
-	return True, normal, maxA[1]-minB[1], maxA[0], minB[0]
+	return True, normal, maxA[1]-minB[1], maxA[0], minB[0] 
+# Returns collision, MTV direction, MTV depth, vertex of collision from A, vertex of collision from B
 
+# >> POLYGON CLIPPING <<
 
+def computeEdge(vertices, vertex, mtv):
+	n = len(vertices)
+	# Extract vertices
+	mainVertex = vertices[vertex]
+	nextVertex = vertices[(vertex+1)%n]
+	prevVertex = vertices[(vertex-1)%n]
+	# Extract edges
+	edgeOne = mainVertex - nextVertex
+	edgeOneProjection = edgeOne.dot(mtv) 
+	edgeTwo = mainVertex - prevVertex
+	edgeTwoProjection = edgeTwo.dot(mtv)
+	if edgeOneProjection > 0 and edgeTwoProjection > 0:
+		return (edgeOne, edgeOneProjection, mainVertex, nextVertex) if edgeOneProjection <= edgeTwoProjection else (edgeTwo, edgeTwoProjection, mainVertex, prevVertex)
+# Returns edge vector, edge projection along mtv, incident vertex, and supporting vertex

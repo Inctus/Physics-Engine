@@ -10,7 +10,9 @@
 # >> MODULES <<
 from classes.vector2d import Vector2
 from classes.udim2 import UDim2
-from classes.uihelper import UIBase, RigidBody, Interface
+from classes.uibase import UIBase
+from classes.interface import Interface 
+from classes.rigidbody import RigidBody
 from shared.settings import screenSize, polygonNames, gravity, friction, elasticity
 from engine.collision_handler import checkCollisions
 
@@ -63,12 +65,6 @@ def render(object, display): # Recursively calls itself to render all object and
 				object.Colour,
 				object.Vertices
 			)
-			#draw.rect(
-			#	display, 
-			#	Colour(255,0,0),
-			#	rect,
-			#	1,
-			#)
 		elif object.ClassName == "Rectangle":
 			display.fill(
 				object.Colour,
@@ -93,7 +89,7 @@ def updatePhysics(Workspace, dt):
 		dominant, inferior, mtv, collisionPoint, impulse = collision
 		ratio = dominant.Mass / (dominant.Mass+inferior.Mass)
 		if not dominant.Anchored or dominant.SafeAnchored:
-			print(f"{dominant.Name} is colliding with {inferior.Name}. Impulse{-mtv*ratio*impulse}. MTV{mtv}")
+			#print(f"{dominant.Name} is colliding with {inferior.Name}. Impulse{-mtv*ratio*impulse}. MTV{mtv}")
 			additionalVelocity = impulse * mtv.normalized() * ratio
 			if additionalVelocity.length > 50:
 				dominant.Velocity -= impulse * mtv.normalized() * ratio

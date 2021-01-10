@@ -15,7 +15,8 @@ from math import pi
 
 from engine.engine_model import createModel,render,createRigidBody,createRigidBodyFromVertices,updatePhysics
 from engine.collision_handler import checkCollisions
-from classes.uihelper import Interface,UIBase
+from classes.interface import Interface
+from classes.uibase import UIBase
 from classes.vector2d import Vector2
 from classes.udim2 import UDim2
 
