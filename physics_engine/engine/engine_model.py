@@ -10,7 +10,9 @@
 # >> MODULES <<
 from classes.vector2d import Vector2
 from classes.udim2 import UDim2
-from classes.uihelper import UIBase, RigidBody, Interface
+from classes.uibase import UIBase
+from classes.interface import Interface 
+from classes.rigidbody import RigidBody
 from shared.settings import screenSize, polygonNames, gravity, friction, elasticity
 from engine.collision_handler import checkCollisions
 
@@ -28,7 +30,7 @@ def findPointsOnUnitCircle(n): # Generates regular polygon from n points.
 	vertices = []
 	for i in range(0,n):# range(offset, 2pi-exteriorAngle+offset, exteriorAngle): Would've used this but floating point errors :/
 		angle = offset + i*exteriorAngle
-		vertices.append(Vector2(sin(angle), cos(angle))) # Could condense this into a list comprehension but want to keep it legibile
+		vertices.append(Vector2(cos(angle), sin(angle))) # Could condense this into a list comprehension but want to keep it legibile
 	return vertices
 
 # >> FUNCTIONS <<
@@ -63,13 +65,6 @@ def render(object, display): # Recursively calls itself to render all object and
 				object.Colour,
 				object.Vertices
 			)
-			object._BoundingRectangle = rect
-			draw.rect(
-				display, 
-				Colour(255,0,0),
-				rect,
-				 1,
-			)
 		elif object.ClassName == "Rectangle":
 			display.fill(
 				object.Colour,
@@ -92,35 +87,19 @@ def updatePhysics(Workspace, dt):
 	collisions = checkCollisions(descendants)
 	for collision in collisions:
 		dominant, inferior, mtv, collisionPoint, impulse = collision
-		ratio = 1#dominant.Mass / (dominant.Mass+inferior.Mass)
+		ratio = dominant.Mass / (dominant.Mass+inferior.Mass)
 		if not dominant.Anchored or dominant.SafeAnchored:
 			#print(f"{dominant.Name} is colliding with {inferior.Name}. Impulse{-mtv*ratio*impulse}. MTV{mtv}")
+			additionalVelocity = impulse * mtv.normalized() * ratio
+			if additionalVelocity.length > 50:
+				dominant.Velocity -= impulse * mtv.normalized() * ratio
 			dominant.Position -= mtv * ratio
-			dominant.Velocity -= impulse * mtv.normalized()
 		if not inferior.Anchored or inferior.SafeAnchored:
-			inferior.Velocity += impulse * mtv.normalized()
-			inferior.Position -= mtv * (1-ratio)
+			additionalVelocity = impulse * mtv.normalized() * (1-ratio)
+			if additionalVelocity.length > 50:
+				inferior.Velocity += impulse * mtv.normalized() * (1-ratio)
+			inferior.Position -= mtv * (1-ratio) 
 
-		# NEED TO ADD IMPULSES IN THE SAME WAY VIA THE RIGID BODY
-			#inferior.AddImpulse(mtv*(1-ratio)*impulse)
-'''
-		shapeOne, shapeTwo, mtv, vertex = collision
-		bodyOne, bodyTwo = descendants[shapeOne], descendants[shapeTwo]
-		relativeVelocity = (bodyTwo.Velocity-bodyOne.Velocity).dot(mtv)
-		relativeGravity = Vector2(0,gravity).projection(mtv)
-		if relativeVelocity > 0:
-			continue
-
-		if not bodyOne.Anchored or bodyOne.SafeAnchored:
-			bodyOne.Position = bodyOne.Position - mtv
-			bodyOne.Velocity = bodyOne.Velocity * 1-friction
-		if not bodyTwo.Anchored or bodyTwo.SafeAnchored:
-			bodyTwo.Position = bodyTwo.Position + mtv
-			bodyTwo.Velocity = bodyOne.Velocity * 1-friction*friction
-		mtv = mtv.normalized()
-		bodyOne.AddImpulse(-mtv * impulse * relativeGravity)#, vertex)
-		bodyTwo.AddImpulse(mtv * impulse * -relativeGravity)#, vertex)
-'''
 # >> RIGID BODY HELPERS <<  (to speed up rigidbody creation and centralise them)
 
 def createRigidBody(n, size):
