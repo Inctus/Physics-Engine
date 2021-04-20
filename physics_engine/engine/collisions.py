@@ -86,7 +86,7 @@ def getNormalsFromVertices(vertices):
 
 def projectVerticesOntoNormal(vertices, normal, sortFunction=False):
 	if sortFunction:
-		return sortFunction([(i, normal.dot(vertex)) for i,vertex in enumerate(vertices)], key=lambda x: x[1]) # Returns (index, projection, vertex) for each vertex.
+		return sortFunction([(i, normal.dot(vertex)) for i,vertex in enumerate(vertices)], key=lambda x: x[1]) # Returns (index, projection) for each vertex.
 	else:
 		return [(i, normal.dot(vertex)) for i,vertex in enumerate(vertices)]
 

@@ -114,7 +114,7 @@ def run():
 				return
 		updatePhysics(engine.Workspace, 1/framerate)
 		render(engine, surface)
-		display.update(engine.Workspace.Rectangle) # Use update RECT to specify WORKSPACE to render WORKSPACE for EFFICIENCY
+		display.update() # Use update RECT to specify WORKSPACE to render WORKSPACE for EFFICIENCY
 		clock.tick_busy_loop(framerate)
 
 run()
